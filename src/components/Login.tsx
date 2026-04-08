@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { motion } from 'motion/react';
-import { cn } from '../lib/utils';
 import { User, Lock, UserPlus } from 'lucide-react';
 import { useChatStore } from '../store/useChatStore';
 
@@ -41,7 +40,6 @@ export default function Login() {
         }
 
       } else {
-        // Register
         if (!username || !password || !displayName) {
           setError('يرجى ملء جميع الحقول المطلوبة');
           return;
@@ -80,25 +78,16 @@ export default function Login() {
             id: authData.user.id,
             username: cleanUsername,
             display_name: displayName.trim(),
-            avatar_url: gender === 'boy' ? '/avatars/boy-1.png' : '/avatars/girl-1.png',
+            gender,
             points: 100,
             is_guest: false,
-            role: 'member',
-            gender: gender,
-          }, { onConflict: 'id' });
-
+          });
           if (profileError) {
-            setError('تم إنشاء الحساب لكن حدث خطأ في الملف الشخصي: ' + profileError.message);
-            return;
-          }
-
-          // Auto sign in if no email confirmation
-          if (!authData.session) {
-            const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password });
-            if (loginErr) {
-              setError('✅ تم إنشاء الحساب! الآن يرجى تسجيل الدخول بنفس البيانات.');
-              setActiveTab('login');
-            }
+            setError('تم إنشاء الحساب، يرجى تسجيل الدخول الآن');
+            setActiveTab('login');
+          } else {
+            setError('✅ تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...');
+            setActiveTab('login');
           }
         }
       }
@@ -110,173 +99,236 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#c0d5e8] flex items-center justify-center p-4 font-sans" dir="rtl">
+    <div
+      className="min-h-screen stars-bg flex items-center justify-center p-4 font-sans relative overflow-hidden"
+      dir="rtl"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(59,130,246,0.12) 0%, transparent 60%), #0d0d1a'
+      }}
+    >
+      {/* Ambient glow orbs */}
+      <div className="absolute top-1/4 left-10 w-72 h-72 rounded-full opacity-10 blur-3xl pointer-events-none animate-float"
+        style={{ background: 'radial-gradient(circle, #7c3aed, transparent)' }} />
+      <div className="absolute bottom-1/4 right-10 w-56 h-56 rounded-full opacity-10 blur-3xl pointer-events-none"
+        style={{ background: 'radial-gradient(circle, #3b82f6, transparent)', animationDelay: '1s' }} />
+      <div className="absolute top-10 right-1/3 w-36 h-36 rounded-full opacity-8 blur-2xl pointer-events-none"
+        style={{ background: 'radial-gradient(circle, #ec4899, transparent)' }} />
+
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.96, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-[480px] bg-[#eef4f9] border-2 border-[#84a9d1] rounded-3xl shadow-2xl overflow-hidden"
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="w-full max-w-md relative z-10"
       >
-        {/* Title Bar */}
-        <div className="bg-gradient-to-b from-[#deedf7] to-[#b8d1e8] px-5 py-3 flex items-center justify-between border-b border-[#84a9d1]">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg shadow-orange-500/30">
-              {siteSettings?.site_name?.charAt(0) || 'S'}
-            </div>
-            <span className="text-sm font-black text-[#1e3a5f] tracking-tight">
-              {siteSettings?.site_name || 'سمايل تو شات'} — نظام الدخول
+        {/* Logo Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="text-center mb-8"
+        >
+          <div
+            className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 animate-float"
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed, #3b82f6)',
+              boxShadow: '0 0 40px rgba(124,58,237,0.55), 0 20px 40px rgba(0,0,0,0.4)'
+            }}
+          >
+            <span className="text-4xl font-black text-white">
+              {siteSettings?.site_name?.charAt(0) || '💬'}
             </span>
           </div>
-          <div className="flex gap-1.5">
-            <div className="w-5 h-4 bg-white/50 border border-[#84a9d1]/30 rounded-sm"></div>
-            <div className="w-5 h-4 bg-red-400 border border-red-500 rounded-sm flex items-center justify-center text-white text-[9px] font-black">✕</div>
+          <h1
+            className="text-2xl font-black mb-1"
+            style={{
+              background: 'linear-gradient(135deg, #a78bfa, #60a5fa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}
+          >
+            {siteSettings?.site_name || 'سمايل تو شات'}
+          </h1>
+          <p className="text-sm font-bold" style={{ color: '#64748b' }}>
+            منصة الدردشة الأكثر حيوية 🌟
+          </p>
+        </motion.div>
+
+        {/* Main Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="glass-card overflow-hidden"
+          style={{ boxShadow: '0 30px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.2)' }}
+        >
+          {/* Tabs */}
+          <div className="flex border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+            {(['login', 'register'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => { setActiveTab(tab); setError(''); }}
+                className="flex-1 py-4 text-sm font-black transition-all flex items-center justify-center gap-2 relative"
+                style={{
+                  color: activeTab === tab ? '#a78bfa' : '#64748b',
+                  background: activeTab === tab ? 'rgba(124,58,237,0.08)' : 'transparent',
+                }}
+              >
+                {activeTab === tab && (
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #7c3aed, #3b82f6)' }}
+                  />
+                )}
+                {tab === 'login' ? <><User size={14} /> دخول الأعضاء</> : <><UserPlus size={14} /> تسجيل جديد</>}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-[#84a9d1]/20 bg-white/40">
-          <button
-            onClick={() => { setActiveTab('login'); setError(''); }}
-            className={cn(
-              "flex-1 py-3.5 text-sm font-black transition-all flex items-center justify-center gap-2",
-              activeTab === 'login'
-                ? "bg-white text-orange-500 border-b-2 border-orange-500"
-                : "text-[#84a9d1] hover:bg-white/50"
-            )}
-          >
-            <User size={15} /> دخول الأعضاء
-          </button>
-          <button
-            onClick={() => { setActiveTab('register'); setError(''); }}
-            className={cn(
-              "flex-1 py-3.5 text-sm font-black transition-all flex items-center justify-center gap-2",
-              activeTab === 'register'
-                ? "bg-white text-orange-500 border-b-2 border-orange-500"
-                : "text-[#84a9d1] hover:bg-white/50"
-            )}
-          >
-            <UserPlus size={15} /> تسجيل جديد
-          </button>
-        </div>
+          <div className="p-7">
+            <form onSubmit={handleAuth} className="space-y-5">
 
-        <div className="p-8">
-          <form onSubmit={handleAuth} className="space-y-5">
-            {/* Logo placeholder instead of Avatar */}
-            <div className="flex items-center gap-5 mb-2">
-              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center text-white font-black text-4xl shrink-0 border-4 border-white">
-                {siteSettings?.site_name?.charAt(0) || 'S'}
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-black text-[#1e3a5f] mb-2">نوع الحساب</p>
-                <div className="flex bg-white/60 p-1 rounded-xl border border-[#84a9d1]/20">
-                  <button
-                    type="button"
-                    onClick={() => setGender('boy')}
-                    className={cn(
-                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
-                      gender === 'boy' ? "bg-blue-500 text-white shadow-md shadow-blue-500/20" : "text-[#84a9d1]"
-                    )}
+              {/* Gender Picker */}
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0 transition-all"
+                  style={{
+                    background: gender === 'boy' ? 'rgba(59,130,246,0.12)' : 'rgba(236,72,153,0.12)',
+                    border: `2px solid ${gender === 'boy' ? 'rgba(59,130,246,0.35)' : 'rgba(236,72,153,0.35)'}`
+                  }}
+                >
+                  {gender === 'boy' ? '🧔' : '👩'}
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-black mb-2" style={{ color: '#64748b' }}>نوع الحساب</p>
+                  <div
+                    className="flex rounded-xl p-1 gap-1"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
                   >
-                    ولد 🧔
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGender('girl')}
-                    className={cn(
-                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
-                      gender === 'girl' ? "bg-pink-500 text-white shadow-md shadow-pink-500/20" : "text-[#84a9d1]"
-                    )}
-                  >
-                    بنت 👩
-                  </button>
+                    <button
+                      type="button" onClick={() => setGender('boy')}
+                      className="flex-1 py-2 rounded-lg text-xs font-black transition-all"
+                      style={{
+                        background: gender === 'boy' ? 'linear-gradient(135deg, #3b82f6, #6366f1)' : 'transparent',
+                        color: gender === 'boy' ? 'white' : '#64748b',
+                        boxShadow: gender === 'boy' ? '0 0 15px rgba(59,130,246,0.3)' : 'none'
+                      }}
+                    >ولد 🧔</button>
+                    <button
+                      type="button" onClick={() => setGender('girl')}
+                      className="flex-1 py-2 rounded-lg text-xs font-black transition-all"
+                      style={{
+                        background: gender === 'girl' ? 'linear-gradient(135deg, #ec4899, #f97316)' : 'transparent',
+                        color: gender === 'girl' ? 'white' : '#64748b',
+                        boxShadow: gender === 'girl' ? '0 0 15px rgba(236,72,153,0.3)' : 'none'
+                      }}
+                    >بنت 👩</button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Display name (register only) */}
-            {activeTab === 'register' && (
+              {/* Display Name (Register Only) */}
+              {activeTab === 'register' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-1.5"
+                >
+                  <label className="text-xs font-black flex items-center gap-1.5" style={{ color: '#94a3b8' }}>
+                    <User size={11} /> الاسم المستعار (يظهر للجميع)
+                  </label>
+                  <input
+                    type="text" placeholder="مثال: الصقر الجارح"
+                    value={displayName} onChange={(e) => setDisplayName(e.target.value)}
+                    className="input-dark" autoComplete="off"
+                  />
+                </motion.div>
+              )}
+
+              {/* Username */}
               <div className="space-y-1.5">
-                <label className="text-xs font-black text-[#1e3a5f] flex items-center gap-1.5">
-                  <User size={12} /> الاسم المستعار (يظهر للجميع)
+                <label className="text-xs font-black flex items-center gap-1.5" style={{ color: '#94a3b8' }}>
+                  <User size={11} /> اسم المستخدم
                 </label>
                 <input
                   type="text"
-                  placeholder="مثال: الصقر الجارح"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-white border-2 border-[#84a9d1]/40 rounded-xl px-4 py-3 text-sm font-bold text-[#1e3a5f] focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                  autoComplete="off"
+                  placeholder={activeTab === 'login' ? 'اسم المستخدم أو البريد الإلكتروني' : 'اسم المستخدم (بالإنجليزية)'}
+                  value={username} onChange={(e) => setUsername(e.target.value)}
+                  className="input-dark" autoComplete="username"
                 />
               </div>
-            )}
 
-            {/* Username */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-black text-[#1e3a5f] flex items-center gap-1.5">
-                <User size={12} /> اسم المستخدم
-              </label>
-              <input
-                type="text"
-                placeholder={activeTab === 'login' ? 'اسم المستخدم أو البريد الإلكتروني' : 'اسم المستخدم (بالإنجليزية)'}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-white border-2 border-[#84a9d1]/40 rounded-xl px-4 py-3 text-sm font-bold text-[#1e3a5f] focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                autoComplete="username"
-              />
-            </div>
+              {/* Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-black flex items-center gap-1.5" style={{ color: '#94a3b8' }}>
+                  <Lock size={11} /> كلمة المرور
+                </label>
+                <input
+                  type="password" placeholder="••••••••"
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="input-dark"
+                  autoComplete={activeTab === 'login' ? 'current-password' : 'new-password'}
+                />
+              </div>
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-black text-[#1e3a5f] flex items-center gap-1.5">
-                <Lock size={12} /> كلمة المرور
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-white border-2 border-[#84a9d1]/40 rounded-xl px-4 py-3 text-sm font-bold text-[#1e3a5f] focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                autoComplete={activeTab === 'login' ? 'current-password' : 'new-password'}
-              />
-            </div>
+              {/* Error / Success Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                  className="text-xs p-3 rounded-xl text-center font-black"
+                  style={{
+                    background: error.startsWith('✅') ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                    border: error.startsWith('✅') ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(239,68,68,0.3)',
+                    color: error.startsWith('✅') ? '#10b981' : '#f87171'
+                  }}
+                >
+                  {error}
+                </motion.div>
+              )}
 
-            {/* Error */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={cn(
-                  "text-xs p-3 rounded-xl text-center font-black border",
-                  error.startsWith('✅')
-                    ? "bg-green-50 border-green-200 text-green-700"
-                    : "bg-red-50 border-red-200 text-red-600"
-                )}
+              {/* Submit Button */}
+              <motion.button
+                type="submit" disabled={loading}
+                whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -2 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full py-4 rounded-2xl font-black text-sm text-white relative overflow-hidden animate-gradient"
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed, #3b82f6, #7c3aed)',
+                  backgroundSize: '200% 200%',
+                  boxShadow: loading ? 'none' : '0 8px 30px rgba(124,58,237,0.4)',
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                }}
               >
-                {error}
-              </motion.div>
-            )}
+                {loading
+                  ? '⏳ جاري المعالجة...'
+                  : activeTab === 'login' ? '🚀 دخول النظام' : '✨ إنشاء حسابي الآن'}
+              </motion.button>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition-all text-sm font-black shadow-lg shadow-orange-500/30 active:scale-95 disabled:opacity-50 mt-2"
-            >
-              {loading
-                ? 'جاري المعالجة...'
-                : activeTab === 'login' ? '🚀 دخول النظام' : '✨ إنشاء حساب جديد'
-              }
-            </button>
+              {activeTab === 'login' && (
+                <p className="text-center text-xs font-bold" style={{ color: '#4b5563' }}>
+                  ليس لديك حساب؟{' '}
+                  <button
+                    type="button" onClick={() => { setActiveTab('register'); setError(''); }}
+                    className="font-black hover:underline transition-all" style={{ color: '#a78bfa' }}
+                  >
+                    سجّل الآن مجاناً ✨
+                  </button>
+                </p>
+              )}
+            </form>
+          </div>
+        </motion.div>
 
-            {activeTab === 'login' && (
-              <p className="text-center text-[10px] text-[#84a9d1] font-bold">
-                ليس لديك حساب؟{' '}
-                <button type="button" onClick={() => setActiveTab('register')} className="text-orange-500 font-black hover:underline">
-                  سجّل الآن مجاناً
-                </button>
-              </p>
-            )}
-          </form>
-        </div>
+        {/* Footer Note */}
+        <motion.p
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+          className="text-center text-xs mt-5 font-bold"
+          style={{ color: '#374151' }}
+        >
+          بالدخول أنت توافق على شروط الاستخدام 🌙
+        </motion.p>
       </motion.div>
     </div>
   );

@@ -199,17 +199,17 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 bg-white border-2 border-brand-light-blue rounded-2xl flex items-center justify-center shadow-xl animate-bounce">
-            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-black text-2xl">
-              {siteSettings?.site_name?.charAt(0) || 'S'}
-            </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.15) 0%, transparent 60%), #0d0d1a' }}>
+        <div className="flex flex-col items-center gap-5">
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center animate-float" style={{ background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', boxShadow: '0 0 40px rgba(124,58,237,0.5)' }}>
+            <span className="text-3xl font-black text-white">{siteSettings?.site_name?.charAt(0) || '💬'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-            <span className="text-brand-blue font-black text-sm tracking-widest">جاري الاتصال...</span>
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#7c3aed' }} />
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#3b82f6', animationDelay: '0.2s' }} />
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#ec4899', animationDelay: '0.4s' }} />
           </div>
+          <span className="font-black text-sm tracking-widest" style={{ color: '#64748b' }}>جاري الاتصال...</span>
         </div>
       </div>
     );
@@ -220,96 +220,108 @@ export default function App() {
   }
 
   return (
-    <div className={cn(
-      "min-h-screen bg-brand-bg text-brand-blue font-sans",
-      currentRoom ? "overflow-hidden flex flex-col h-screen" : ""
-    )} dir="rtl">
+    <div
+      className={cn("min-h-screen font-sans", currentRoom ? "overflow-hidden flex flex-col h-screen" : "")}
+      dir="rtl"
+      style={{ background: currentRoom ? '#0d0d1a' : 'radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.12) 0%, transparent 50%), #0d0d1a' }}
+    >
       {/* Header - Hidden in room */}
       {!currentRoom && !showAdminDashboard && (
-        <header className="bg-white border-b border-brand-light-blue px-6 py-4 flex items-center justify-between sticky top-0 z-50 shadow-sm">
-          <div className="flex items-center gap-4" onClick={() => {setCurrentRoom(null); setShowAdminDashboard(false);}} style={{cursor: 'pointer'}}>
-            <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center font-black text-xl text-white shadow-lg shadow-orange-500/20">
-              {siteSettings?.site_name?.charAt(0) || 'S'}
+        <header
+          className="px-5 py-3 flex items-center justify-between sticky top-0 z-50"
+          style={{
+            background: 'rgba(13,13,26,0.85)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
+          }}
+        >
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => { setCurrentRoom(null); setShowAdminDashboard(false); }}
+          >
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg text-white"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', boxShadow: '0 0 15px rgba(124,58,237,0.4)' }}
+            >
+              {siteSettings?.site_name?.charAt(0) || '💬'}
             </div>
-            <h1 className="text-2xl font-black tracking-tighter text-brand-blue italic">{siteSettings?.site_name || 'سمايل تو شات'}</h1>
+            <h1 className="text-xl font-black tracking-tight" style={{ background: 'linear-gradient(135deg, #a78bfa, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              {siteSettings?.site_name || 'سمايل تو شات'}
+            </h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {(user.role === 'owner' || user.role === 'super_admin' || user.role === 'admin') && (
               <button
                 onClick={() => setShowAdminDashboard(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white rounded-2xl hover:bg-brand-blue/90 transition-all text-xs font-black shadow-lg shadow-brand-blue/20 active:scale-95"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all"
+                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
               >
-                <Shield size={16} className="text-orange-400" />
+                <Shield size={14} />
                 <span>لوحة الإدارة</span>
               </button>
             )}
 
             <button
               onClick={() => setProfileModalTab('shop')}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all text-xs font-black shadow-lg shadow-purple-500/20 active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', boxShadow: '0 4px 15px rgba(124,58,237,0.3)', color: 'white' }}
             >
-              <ShoppingBag size={16} />
+              <ShoppingBag size={14} />
               <span>المتجر</span>
             </button>
 
-            <div 
+            <div
               onClick={() => setProfileModalTab('profile')}
-              className="flex items-center gap-3 px-4 py-2 bg-brand-surface rounded-2xl border border-brand-light-blue/30 shadow-sm cursor-pointer hover:bg-[#eef4f9] transition-all"
+              className="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(124,58,237,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
             >
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-brand-light-blue/20">
-                <UserIcon size={16} className="text-orange-500" />
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #3b82f6)' }}>
+                {user.avatar_url?.startsWith('http') || user.avatar_url?.startsWith('/') ? (
+                  <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
+                ) : (
+                  <UserIcon size={14} className="text-white" />
+                )}
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-black text-brand-blue leading-tight">{user.display_name}</span>
-                <span className="text-[10px] font-bold text-brand-light-blue">
-                  {user.points} نقطة ذهبية
-                </span>
+                <span className="text-xs font-black leading-tight" style={{ color: '#f1f5f9' }}>{user.display_name}</span>
+                <span className="text-[10px] font-bold" style={{ color: '#f59e0b' }}>⭐ {user.points?.toLocaleString() || 0} نقطة</span>
               </div>
             </div>
+
             <button
               onClick={handleLogout}
-              className="p-3 hover:bg-red-50 rounded-2xl transition-all text-brand-light-blue hover:text-red-600 border border-transparent hover:border-red-100 active:scale-95"
+              className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
+              style={{ background: 'rgba(239,68,68,0.08)', color: '#64748b', border: '1px solid rgba(239,68,68,0.15)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.15)'; (e.currentTarget as HTMLButtonElement).style.color = '#f87171'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.08)'; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'; }}
               title="تسجيل الخروج"
             >
-              <LogOut size={20} />
+              <LogOut size={16} />
             </button>
           </div>
         </header>
       )}
 
-      <main className={cn(
-        "flex-1 flex flex-col min-h-0",
-        currentRoom || showAdminDashboard ? "h-full w-full p-0" : "max-w-7xl mx-auto p-4 md:p-6 w-full"
-      )}>
+      <main
+        className="flex-1 flex flex-col min-h-0"
+        style={currentRoom || showAdminDashboard ? { height: '100%', width: '100%', padding: 0 } : { maxWidth: '80rem', margin: '0 auto', padding: '1.5rem', width: '100%' }}
+      >
         <AnimatePresence mode="wait">
           {showAdminDashboard ? (
-            <motion.div
-              key="admin"
-              className="h-full w-full"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-            >
+            <motion.div key="admin" className="h-full w-full" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
               <AdminDashboard />
             </motion.div>
           ) : currentRoom ? (
-            <motion.div
-              key="room"
-              className="h-full w-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
+            <motion.div key="room" className="h-full w-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <RoomView />
             </motion.div>
           ) : (
-            <motion.div
-              key="lobby"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
+            <motion.div key="lobby" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
               <Lobby />
             </motion.div>
           )}

@@ -4,9 +4,9 @@
 -- وممتلكات الأعضاء القديمة، وسيقوم بإدخال العناصر الجديدة المميزة.
 -- ===============================================================
 
--- 1. تفريغ الجداول من البيانات القديمة لمنع التكرار
-TRUNCATE TABLE public.user_items;
-TRUNCATE TABLE public.shop_items;
+-- 1. تفريغ الجداول من البيانات القديمة (نستخدم DELETE لتجنب انقطاع الاتصال Timeouts)
+DELETE FROM public.user_items;
+DELETE FROM public.shop_items;
 
 -- 2. إدخال وتحديث البيانات الجديدة في المتجر
 INSERT INTO public.shop_items (id, name_ar, category, image_url, preview_css, points_cost, duration_days, is_active)

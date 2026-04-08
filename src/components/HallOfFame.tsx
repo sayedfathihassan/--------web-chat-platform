@@ -11,7 +11,7 @@ export default function HallOfFame() {
     async function fetchTopGivers() {
       const { data } = await supabase
         .from('profiles')
-        .select('id, display_name, username, total_gifts_sent, total_gifts_received')
+        .select('id, display_name, username, avatar_url, total_gifts_sent, total_gifts_received')
         .order('total_gifts_sent', { ascending: false })
         .limit(3);
       if (data) setTopGivers(data);
@@ -51,11 +51,17 @@ export default function HallOfFame() {
                 <div className={`w-14 h-14 rounded-2xl p-0.5 ${
                   pos === 1 ? 'bg-yellow-400' : pos === 2 ? 'bg-slate-300' : 'bg-amber-600'
                 } shadow-lg`}>
-                  <img 
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} 
-                    className="w-full h-full rounded-2xl bg-white object-cover"
-                    alt=""
-                  />
+                  {user.avatar_url ? (
+                    <img 
+                      src={user.avatar_url} 
+                      className="w-full h-full rounded-2xl bg-white object-cover"
+                      alt=""
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-2xl bg-white flex items-center justify-center text-3xl">
+                      {user.gender === 'girl' ? '👩' : '🧔'}
+                    </div>
+                  )}
                 </div>
                 <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow ${
                   pos === 1 ? 'bg-yellow-500' : pos === 2 ? 'bg-slate-500' : 'bg-amber-700'

@@ -80,6 +80,7 @@ export default function Login() {
             id: authData.user.id,
             username: cleanUsername,
             display_name: displayName.trim(),
+            avatar_url: gender === 'boy' ? '/avatars/boy-1.png' : '/avatars/girl-1.png',
             points: 100,
             is_guest: false,
             role: 'member',
@@ -159,30 +160,14 @@ export default function Login() {
 
         <div className="p-8">
           <form onSubmit={handleAuth} className="space-y-5">
-            {/* Avatar preview */}
+            {/* Logo placeholder instead of Avatar */}
             <div className="flex items-center gap-5 mb-2">
-              <div className="w-20 h-20 bg-white border-4 border-[#84a9d1]/30 rounded-2xl shadow-lg overflow-hidden shrink-0">
-                <img
-                  src={gender === 'boy' 
-                    ? `https://api.dicebear.com/7.x/avataaars/svg?seed=Felix` 
-                    : `https://api.dicebear.com/7.x/avataaars/svg?seed=Luna`}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center text-white font-black text-4xl shrink-0 border-4 border-white">
+                {siteSettings?.site_name?.charAt(0) || 'S'}
               </div>
               <div className="flex-1">
                 <p className="text-xs font-black text-[#1e3a5f] mb-2">نوع الحساب</p>
                 <div className="flex bg-white/60 p-1 rounded-xl border border-[#84a9d1]/20">
-                  <button
-                    type="button"
-                    onClick={() => setGender('girl')}
-                    className={cn(
-                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
-                      gender === 'girl' ? "bg-pink-500 text-white shadow-md shadow-pink-500/20" : "text-[#84a9d1]"
-                    )}
-                  >
-                    بنت 👩
-                  </button>
                   <button
                     type="button"
                     onClick={() => setGender('boy')}
@@ -192,6 +177,16 @@ export default function Login() {
                     )}
                   >
                     ولد 🧔
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender('girl')}
+                    className={cn(
+                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
+                      gender === 'girl' ? "bg-pink-500 text-white shadow-md shadow-pink-500/20" : "text-[#84a9d1]"
+                    )}
+                  >
+                    بنت 👩
                   </button>
                 </div>
               </div>

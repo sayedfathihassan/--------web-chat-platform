@@ -249,7 +249,7 @@ export default function SendGiftModal({ initialTargetUserId, initialTargetDispla
                   <div>
                     <p className="text-sm font-black text-[#1e3a5f]">{selectedGift.name_ar}</p>
                     <p className="text-[10px] text-[#84a9d1] font-bold">
-                      التكلفة: {selectedGift.points_cost}💎 — المستلِم يحصل: +{selectedGift.points_award}💎
+                      التكلفة: {selectedGift.points_cost}💎 — المستلِم يحصل: +{Math.floor(selectedGift.points_cost * 0.1)}💎
                     </p>
                   </div>
                 </div>

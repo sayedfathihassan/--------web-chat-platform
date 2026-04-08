@@ -272,7 +272,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 overflow-auto custom-scrollbar p-10">
+            <div className="flex-1 overflow-auto custom-scrollbar p-4 md:p-8">
               {loading ? (
                 <div className="h-full flex flex-col items-center justify-center gap-4">
                   <div className="w-14 h-14 border-[5px] border-orange-500/10 border-t-orange-500 rounded-full animate-spin"></div>
@@ -290,111 +290,114 @@ export default function AdminDashboard() {
                     {/* Users Management */}
                     {activeTab === 'users' && (
                       <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                           <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-6 rounded-[2rem] text-white shadow-xl shadow-blue-500/10">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                           <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-4 md:p-6 rounded-2xl md:rounded-[2rem] text-white shadow-xl shadow-blue-500/10">
                               <span className="text-xs font-black text-white/60 mb-1 block">إجمالي الأعضاء</span>
-                              <div className="text-3xl font-black">{users.length}</div>
+                              <div className="text-2xl md:text-3xl font-black">{users.length}</div>
                            </div>
-                           <div className="bg-gradient-to-br from-orange-500 to-orange-700 p-6 rounded-[2rem] text-white shadow-xl shadow-orange-500/10">
+                           <div className="bg-gradient-to-br from-orange-500 to-orange-700 p-4 md:p-6 rounded-2xl md:rounded-[2rem] text-white shadow-xl shadow-orange-500/10">
                               <span className="text-xs font-black text-white/60 mb-1 block">المشرفين</span>
-                              <div className="text-3xl font-black">{users.filter(u => u.role !== 'member' && u.role !== 'guest').length}</div>
+                              <div className="text-2xl md:text-3xl font-black">{users.filter(u => u.role !== 'member' && u.role !== 'guest').length}</div>
                            </div>
-                           <div className="bg-gradient-to-br from-slate-700 to-slate-900 p-6 rounded-[2rem] text-white shadow-xl shadow-slate-900/10">
+                           <div className="bg-gradient-to-br from-slate-700 to-slate-900 p-4 md:p-6 rounded-2xl md:rounded-[2rem] text-white shadow-xl shadow-slate-900/10">
                               <span className="text-xs font-black text-white/60 mb-1 block">إجمالي النقاط</span>
-                              <div className="text-3xl font-black">{stats.totalPoints.toLocaleString()}</div>
+                              <div className="text-2xl md:text-3xl font-black">{stats.totalPoints.toLocaleString()}</div>
                            </div>
                         </div>
 
-                        <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
-                          <table className="w-full text-right">
-                            <thead>
-                              <tr className="bg-[#f8fbff] text-[#1e3a5f] text-xs font-black">
-                                <th className="p-6">العضو</th>
-                                <th className="p-6">النقاط</th>
-                                <th className="p-6">الرتبة</th>
-                                <th className="p-6">إجراءات</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                              {filteredUsers.map(u => (
-                                <tr key={u.id} className="hover:bg-blue-50/30 transition-colors group">
-                                  <td className="p-6">
-                                    <div className="flex items-center gap-4">
-                                      <div className="relative">
-                                        {u.avatar_url?.startsWith('http') || u.avatar_url?.startsWith('/') ? (
-                                          <img src={u.avatar_url} className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md object-cover" alt="" />
-                                        ) : (
-                                          <div className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md flex items-center justify-center text-2xl">{u.avatar_url || '👤'}</div>
-                                        )}
-                                        <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white", u.is_guest ? "bg-gray-400" : "bg-green-500")} />
-                                      </div>
-                                      <div>
-                                        <div className="text-sm font-black text-[#1e3a5f] group-hover:text-orange-500 transition-colors font-sans">{u.display_name}</div>
-                                        <div className="text-[10px] font-bold text-[#84a9d1]">@{u.username}</div>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="p-6">
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-sm font-black text-orange-600 font-mono">{u.points.toLocaleString()}</span>
-                                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => fetchData()} className="w-7 h-7 bg-white border border-green-100 text-green-600 rounded-lg flex items-center justify-center hover:bg-green-500 hover:text-white transition-all shadow-sm"><Plus size={14} /></button>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="p-6">
-                                    <select value={u.role || 'member'} onChange={e => {
-                                       supabase.from('profiles').update({ role: e.target.value }).eq('id', u.id).then(() => {
-                                          showToast('تم تحديث الرتبة');
-                                          fetchData();
-                                       });
-                                    }}
-                                      className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[11px] font-black text-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-orange-500/20">
-                                      {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-                                    </select>
-                                  </td>
-                                  <td className="p-6">
-                                    <button onClick={() => { if(confirm('طرد المستخدم؟')) useChatStore.getState().processAdminAction('kick', u.id); }}
-                                      className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                                      <Ban size={18} />
-                                    </button>
-                                  </td>
+                        <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                          <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-right min-w-[1000px]">
+                              <thead>
+                                <tr className="bg-[#f8fbff] text-[#1e3a5f] text-[10px] md:text-xs font-black">
+                                  <th className="p-4 md:p-5">العضو</th>
+                                  <th className="p-4 md:p-5 text-center">النقاط</th>
+                                  <th className="p-4 md:p-5 text-center">الرتبة</th>
+                                  <th className="p-4 md:p-5 text-center">تاريخ التسجيل</th>
+                                  <th className="p-4 md:p-5 text-center">إجراءات</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody className="divide-y divide-slate-50">
+                                {filteredUsers.map(u => (
+                                  <tr key={u.id} className="hover:bg-blue-50/30 transition-colors group">
+                                    <td className="p-4 md:p-5">
+                                      <div className="flex items-center gap-4">
+                                        <div className="relative shrink-0">
+                                          {u.avatar_url?.startsWith('http') || u.avatar_url?.startsWith('/') ? (
+                                            <img src={u.avatar_url} className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md object-cover" alt="" />
+                                          ) : (
+                                            <div className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md flex items-center justify-center text-xl">{u.avatar_url || '👤'}</div>
+                                          )}
+                                          <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white", u.is_guest ? "bg-gray-400" : "bg-green-500")} />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <div className="text-sm font-black text-[#1e3a5f] group-hover:text-orange-500 transition-colors font-sans truncate">{u.display_name}</div>
+                                          <div className="text-[10px] font-bold text-[#84a9d1]">@{u.username}</div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="p-4 md:p-5 text-center">
+                                      <span className="text-sm font-black text-orange-600 font-mono bg-orange-50 px-3 py-1 rounded-full border border-orange-100">{u.points.toLocaleString()}</span>
+                                    </td>
+                                    <td className="p-4 md:p-5 text-center">
+                                      <select value={u.role || 'member'} onChange={e => {
+                                         supabase.from('profiles').update({ role: e.target.value }).eq('id', u.id).then(() => {
+                                            showToast('تم تحديث الرتبة');
+                                            fetchData();
+                                         });
+                                      }}
+                                        className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[11px] font-black text-[#1e3a5f] focus:outline-none hover:bg-white transition-all cursor-pointer">
+                                        {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+                                      </select>
+                                    </td>
+                                    <td className="p-4 md:p-5 text-center">
+                                       <span className="text-[10px] font-bold text-slate-400">{new Date(u.created_at).toLocaleDateString('ar-EG')}</span>
+                                    </td>
+                                    <td className="p-4 md:p-5 text-center">
+                                      <div className="flex items-center justify-center gap-2">
+                                        <button onClick={() => { if(confirm('طرد المستخدم؟')) useChatStore.getState().processAdminAction('kick', u.id); }}
+                                          className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                                          <Ban size={18} />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </div>
                     )}
 
                     {/* Rooms Management */}
                     {activeTab === 'rooms' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                         {rooms.map(room => (
-                          <div key={room.id} className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/50 group hover:border-orange-200 transition-all flex flex-col">
-                            <div className="h-40 relative bg-slate-900 overflow-hidden shrink-0">
+                          <div key={room.id} className="bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl group hover:border-orange-200 transition-all flex flex-col">
+                            <div className="h-32 md:h-40 relative bg-slate-900 overflow-hidden shrink-0">
                                {room.cover_image_url ? (
                                  <img src={room.cover_image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" alt="" />
                                ) : (
                                  <div className="w-full h-full bg-gradient-to-br from-[#1e3a5f] to-[#2a4e7c] flex items-center justify-center">
-                                   <MessageSquare size={48} className="text-white/20" />
+                                   <MessageSquare size={32} className="text-white/20 md:size-[48px]" />
                                  </div>
                                )}
-                               <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
-                                  <span className="text-[10px] font-black text-white uppercase">{room.is_private ? 'خاصة 🔒' : 'عامة 🌍'}</span>
+                               <div className="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full border border-white/30">
+                                  <span className="text-[9px] font-black text-white">{room.is_private ? 'خاص 🔒' : 'عام 🌍'}</span>
                                </div>
                             </div>
-                            <div className="p-8">
-                               <h3 className="text-lg font-black text-[#1e3a5f] mb-1">{room.name}</h3>
-                               <p className="text-[11px] font-bold text-[#84a9d1] mb-6">/{room.slug}</p>
+                            <div className="p-4 md:p-6 flex flex-col flex-1">
+                               <h3 className="text-sm md:text-lg font-black text-[#1e3a5f] mb-1 truncate">{room.name}</h3>
+                               <p className="text-[9px] md:text-[11px] font-bold text-[#84a9d1] mb-4">/{room.slug}</p>
                                
-                               <div className="flex items-center gap-6 mb-8">
+                               <div className="flex items-center gap-4 mb-6">
                                   <div className="flex flex-col">
-                                     <span className="text-[10px] font-black text-[#84a9d1]">السعة</span>
-                                     <span className="text-xs font-black text-[#1e3a5f]">{room.max_users} عضو</span>
+                                     <span className="text-[8px] md:text-[10px] font-black text-[#84a9d1]">السعة</span>
+                                     <span className="text-xs font-black text-[#1e3a5f]">{room.max_users}</span>
                                   </div>
                                   <div className="flex flex-col">
-                                     <span className="text-[10px] font-black text-[#84a9d1]">المايكات</span>
+                                     <span className="text-[8px] md:text-[10px] font-black text-[#84a9d1]">المايكات</span>
                                      <span className="text-xs font-black text-[#1e3a5f]">{room.max_mic_seats}</span>
                                   </div>
                                </div>
@@ -406,12 +409,12 @@ export default function AdminDashboard() {
                                         fetchData();
                                      });
                                   }}
-                                    className={cn("flex-1 py-3 rounded-2xl text-xs font-black transition-all", 
+                                    className={cn("flex-1 py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-black transition-all", 
                                       room.is_active ? "bg-green-50 text-green-600 border border-green-100 hover:bg-green-500 hover:text-white" : "bg-red-50 text-red-600 border border-red-100 hover:bg-red-500 hover:text-white")}>
-                                    {room.is_active ? 'نشطة حالياً' : 'معطلة'}
+                                    {room.is_active ? 'نشطة' : 'معطلة'}
                                   </button>
-                                  <button onClick={() => handleDeleteRoom(room.id)} className="w-12 h-12 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
-                                     <Trash2 size={20} />
+                                  <button onClick={() => handleDeleteRoom(room.id)} className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+                                     <Trash2 size={18} className="md:size-[20px]" />
                                   </button>
                                </div>
                             </div>
@@ -420,26 +423,18 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    {/* Other tabs simplified for space, matching theme */}
+                    {/* Gifts/Shop */}
                     {(activeTab === 'gifts' || activeTab === 'shop') && (
-                      <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm text-center">
-                         <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500">
-                            <Package size={40} />
-                         </div>
-                         <h3 className="text-xl font-black text-[#1e3a5f] mb-2">قسم {TAB_LABELS[activeTab]}</h3>
-                         <p className="text-sm text-[#84a9d1] font-bold mb-8">يتم تحديث العناصر مباشرة من قاعدة البيانات. يمكنك إضافة عناصر جديدة أو تعديل العناصر الحالية.</p>
-                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="bg-white rounded-3xl p-6 md:p-10 border border-slate-100 shadow-sm text-center">
+                         <h3 className="text-lg md:text-xl font-black text-[#1e3a5f] mb-2">{TAB_LABELS[activeTab]}</h3>
+                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6 mt-6">
                             {(activeTab === 'gifts' ? gifts : shopItems).map((it: any) => (
-                               <div key={it.id} className="p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:border-orange-200 transition-all group">
-                                  <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
-                                    {it.image_url?.startsWith('http') || it.image_url?.startsWith('/') ? (
-                                       <img src={it.image_url} className="w-16 h-16 mx-auto object-contain" alt="" />
-                                    ) : (
-                                       it.image_url || '🎁'
-                                    )}
+                               <div key={it.id} className="p-3 md:p-6 rounded-2xl md:rounded-3xl bg-slate-50 border border-slate-100 hover:border-orange-200 transition-all">
+                                  <div className="text-3xl md:text-4xl mb-2">
+                                    {it.image_url?.startsWith('http') ? <img src={it.image_url} className="w-10 h-10 md:w-16 md:h-16 mx-auto object-contain" alt="" /> : it.image_url}
                                   </div>
-                                  <div className="text-sm font-black text-[#1e3a5f] mb-1">{it.name_ar}</div>
-                                  <div className="text-xs font-black text-orange-500">{it.points_cost} نقطة</div>
+                                  <div className="text-[10px] md:text-sm font-black text-[#1e3a5f] truncate">{it.name_ar}</div>
+                                  <div className="text-[9px] md:text-xs font-black text-orange-500">{it.points_cost}💎</div>
                                </div>
                             ))}
                          </div>
@@ -447,17 +442,13 @@ export default function AdminDashboard() {
                     )}
 
                     {activeTab === 'broadcast' && (
-                      <div className="max-w-2xl mx-auto py-20 text-center">
-                         <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-blue-500 shadow-lg shadow-blue-500/10">
-                            <TrendingUp size={48} />
-                         </div>
-                         <h3 className="text-2xl font-black text-[#1e3a5f] mb-4">بث رسالة إدارية لجميع الغرف</h3>
-                         <p className="text-[#84a9d1] font-bold mb-10 leading-relaxed">اكتب رسالتك لجميع المستخدمين المتواجدين الآن. ستظهر الرسالة في الشات العام لكل غرفة بوضوح فائق.</p>
+                      <div className="max-w-2xl mx-auto py-10 md:py-20 text-center">
+                         <h3 className="text-xl md:text-2xl font-black text-[#1e3a5f] mb-4">بث رسالة لجميع الغرف</h3>
                          <textarea 
                             value={broadcastText}
                             onChange={(e) => setBroadcastText(e.target.value)}
                             placeholder="ما الذي تود قوله للجميع اليوم؟..." 
-                            className="w-full h-40 p-6 rounded-[2rem] bg-[#f9fbfd] border-2 border-slate-100 text-sm font-bold focus:outline-none focus:border-orange-500 shadow-inner transition-all mb-6"
+                            className="w-full h-32 md:h-48 p-4 md:p-6 rounded-2xl md:rounded-[2rem] bg-[#f9fbfd] border-2 border-slate-100 text-xs md:text-sm font-bold focus:outline-none focus:border-orange-500 shadow-inner mb-6"
                          />
                          <button 
                            onClick={() => {
@@ -476,36 +467,36 @@ export default function AdminDashboard() {
                               showToast('تم إرسال البث بنجاح ✅');
                               setBroadcastText('');
                            }}
-                           className="w-full py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-orange-500/20 active:scale-95 transition-all">
+                           className="w-full py-4 md:py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl md:rounded-[2rem] font-black text-sm md:text-lg shadow-xl active:scale-95 transition-all">
                            إرسال الإعلان الآن ✨
                          </button>
                       </div>
                     )}
 
                     {activeTab === 'settings' && siteSettingsForm && (
-                       <div className="max-w-3xl mx-auto bg-white rounded-[3rem] p-12 border border-slate-100 shadow-xl shadow-slate-200/50">
-                          <h3 className="text-2xl font-black text-[#1e3a5f] mb-10 pb-6 border-b border-slate-100">إعدادات المنصة الأساسية</h3>
-                          <div className="space-y-8">
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="max-w-3xl mx-auto bg-white rounded-3xl md:rounded-[3rem] p-6 md:p-12 border border-slate-100 shadow-xl">
+                          <h3 className="text-xl md:text-2xl font-black text-[#1e3a5f] mb-6 md:mb-10 pb-6 border-b">الإعدادات</h3>
+                          <div className="space-y-6 md:space-y-8">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                    <label className="text-xs font-black text-[#1e3a5f] px-2">اسم الموقع</label>
                                    <input type="text" value={siteSettingsForm.site_name} onChange={e => setSiteSettingsForm({...siteSettingsForm, site_name: e.target.value})}
-                                      className="w-full bg-[#f8fbff] border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all" />
+                                      className="w-full bg-[#f8fbff] border border-slate-100 rounded-xl md:rounded-2xl px-4 md:px-5 py-3 md:py-4 text-xs md:text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white" />
                                 </div>
                                 <div className="space-y-2">
-                                   <label className="text-xs font-black text-[#1e3a5f] px-2">اسم العملة (مثال: نقاط)</label>
+                                   <label className="text-xs font-black text-[#1e3a5f] px-2">اسم العملة</label>
                                    <input type="text" value={siteSettingsForm.points_name} onChange={e => setSiteSettingsForm({...siteSettingsForm, points_name: e.target.value})}
-                                      className="w-full bg-[#f8fbff] border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all" />
+                                      className="w-full bg-[#f8fbff] border border-slate-100 rounded-xl md:rounded-2xl px-4 md:px-5 py-3 md:py-4 text-xs md:text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white" />
                                 </div>
                              </div>
                              <div className="space-y-2">
-                                <label className="text-xs font-black text-[#1e3a5f] px-2">نقاط الترحيب بالأعضاء الجدد</label>
+                                <label className="text-xs font-black text-[#1e3a5f] px-2">نقاط الترحيب</label>
                                 <input type="number" value={siteSettingsForm.default_points} onChange={e => setSiteSettingsForm({...siteSettingsForm, default_points: parseInt(e.target.value)})}
-                                   className="w-full bg-[#f8fbff] border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all" />
+                                   className="w-full bg-[#f8fbff] border border-slate-100 rounded-xl md:rounded-2xl px-4 md:px-5 py-3 md:py-4 text-xs md:text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white" />
                              </div>
                              <button onClick={handleSaveSettings} disabled={saving}
-                                className="w-full mt-6 py-5 bg-[#1e3a5f] text-white rounded-[2rem] font-black text-lg hover:bg-slate-900 transition-all shadow-xl shadow-slate-900/10 active:scale-95">
-                                {saving ? 'جاري الحفظ...' : 'حفظ التغييرات النهائية'}
+                                className="w-full mt-4 py-4 md:py-5 bg-[#1e3a5f] text-white rounded-xl md:rounded-[2rem] font-black text-sm md:text-lg shadow-xl active:scale-95">
+                                {saving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                              </button>
                           </div>
                        </div>

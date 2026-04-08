@@ -49,7 +49,8 @@ export default function RoomView() {
     isMuted: isMutedByAdmin, ignoredUserIds, openPrivateChat,
     showAdminDashboard, setShowAdminDashboard, setRoomPermissions, roomPermissions,
     roomModeratorIds, setRoomModeratorIds, isSoundEnabled, toggleSound, addReaction,
-    roomModerators, setRoomModerators
+    roomModerators, setRoomModerators, 
+    connectAudio, disconnectAudio, publishAudio, isAudioConnected
   } = useChatStore();
   const { playSound } = useSound();
 
@@ -117,6 +118,10 @@ export default function RoomView() {
         }
       }
     };
+    if (user && currentRoom) {
+      connectAudio(currentRoom.id);
+    }
+
     fetchData();
 
     const micSub = supabase.channel(`mic_seats_${currentRoom.id}`)
@@ -147,6 +152,7 @@ export default function RoomView() {
     return () => { 
       micSub.unsubscribe(); 
       roomSub.unsubscribe(); 
+      disconnectAudio();
     };
   }, [currentRoom, user, setCurrentRoom]);
 
@@ -255,12 +261,16 @@ export default function RoomView() {
     if (error) {
       if (error.code === '23505') alert('هذا المقعد تم حجزه للتو');
       else alert('فشل حجز المايك: ' + error.message);
+    } else {
+      // Start publishing audio
+      publishAudio(true);
     }
   };
 
   const handleLeaveMic = async () => {
     if (!user || !currentRoom) return;
     await supabase.from('mic_seats').delete().eq('room_id', currentRoom.id).eq('user_id', user.id);
+    publishAudio(false);
   };
 
   const handleLeaveRoom = async () => {
@@ -520,6 +530,20 @@ export default function RoomView() {
                             <img src={(seatUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
                           ) : (
                             (seatUser as any)?.avatar_url || '🧔'
+                          )}
+                          
+                          {/* LiveKit Voice Visualizer */}
+                          {seatUser && (
+                            <div className="absolute inset-0 bg-orange-500/10 flex items-end justify-center gap-0.5 pb-1 z-20 pointer-events-none">
+                              {[1, 2, 3, 2, 1].map((h, j) => (
+                                <motion.div
+                                  key={j}
+                                  animate={{ height: seatUser.id === user?.id ? [4, h * 8, 4] : 4 }}
+                                  transition={{ repeat: Infinity, duration: 0.5, delay: j * 0.1 }}
+                                  className="w-1 bg-orange-500 rounded-full"
+                                />
+                              ))}
+                            </div>
                           )}
                         </div>
                         {seat.is_muted && (

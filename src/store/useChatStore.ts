@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { User, Room, Message, MicSeat, RoomModerator, DEFAULT_SHOP_ITEMS, SiteSettings } from '../types';
 import { supabase } from '../lib/supabase';
 import { filterText, cn } from '../lib/utils';
+import { Room as LKRoom, RoomEvent, createLocalAudioTrack } from 'livekit-client';
 
 export interface OnlineUser {
   id: string;
@@ -44,6 +45,10 @@ interface ChatState {
   alreadyJoinedUserIds: Set<string>;
   siteSettings: SiteSettings | null;
   setSiteSettings: (settings: SiteSettings) => void;
+  
+  audioRoom: any | null;
+  audioToken: string | null;
+  isAudioConnected: boolean;
 
   setUser: (user: User | null) => void;
   setCurrentRoom: (room: Room | null) => void;
@@ -73,6 +78,10 @@ interface ChatState {
   updatePresence: () => Promise<void>;
   isSoundEnabled: boolean;
   toggleSound: () => void;
+  
+  connectAudio: (roomId: string) => Promise<void>;
+  disconnectAudio: () => void;
+  publishAudio: (enabled: boolean) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -102,6 +111,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isSoundEnabled: true,
   alreadyJoinedUserIds: new Set(),
   siteSettings: null,
+  audioRoom: null,
+  audioToken: null,
+  isAudioConnected: false,
   setSiteSettings: (siteSettings) => set({ siteSettings }),
 
   setUser: (user) => set({ user }),
@@ -116,6 +128,52 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setIgnorePrivate: (isIgnorePrivate) => set({ isIgnorePrivate }),
   setFontStyling: (fontColor, fontFamily) => set({ fontColor, fontFamily }),
   setShowAdminDashboard: (showAdminDashboard) => set({ showAdminDashboard }),
+  
+  connectAudio: async (roomId) => {
+    const { user, audioRoom } = get();
+    if (!user || audioRoom) return;
+    
+    try {
+      // 1. Fetch token
+      const res = await fetch(`/api/livekit-token?roomId=${roomId}&userId=${user.id}&username=${user.display_name}&canPublish=true`);
+      const { token } = await res.json();
+      if (!token) throw new Error('Failed to get audio token');
+      
+      // 2. Connect
+      const room = new LKRoom();
+      const url = import.meta.env.VITE_LIVEKIT_WS_URL || 'wss://smile-to-chat.livekit.cloud';
+      await room.connect(url, token);
+      console.log(`[LiveKit] Connected to audio room at ${url}`);
+      
+      set({ audioRoom: room, audioToken: token, isAudioConnected: true });
+      
+      room.on(RoomEvent.Disconnected, () => {
+        set({ audioRoom: null, isAudioConnected: false });
+      });
+      
+    } catch (err) {
+      console.error('[LiveKit] Connection error:', err);
+    }
+  },
+
+  disconnectAudio: () => {
+    const { audioRoom } = get();
+    if (audioRoom) {
+      audioRoom.disconnect();
+      set({ audioRoom: null, isAudioConnected: false });
+    }
+  },
+
+  publishAudio: async (enabled) => {
+    const { audioRoom } = get();
+    if (!audioRoom) return;
+    
+    if (enabled) {
+      await audioRoom.localParticipant.setMicrophoneEnabled(true);
+    } else {
+      await audioRoom.localParticipant.setMicrophoneEnabled(false);
+    }
+  },
 
   initGlobalNotice: () => {
     if (get().globalNoticeChannel) return;

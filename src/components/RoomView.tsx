@@ -279,7 +279,7 @@ export default function RoomView() {
   if (!currentRoom) return null;
 
   return (
-    <div className="h-screen bg-[#c0d5e8] flex flex-col font-sans overflow-hidden" dir="rtl">
+    <div className="fixed inset-0 bg-[#c0d5e8] flex flex-col font-sans overflow-hidden md:relative md:flex-1 md:h-auto md:rounded-3xl md:shadow-2xl md:border md:border-[#84a9d1]/20" dir="rtl">
 
       {/* ── Title Bar ── */}
       <div className="bg-gradient-to-b from-[#deedf7] to-[#b8d1e8] px-3 py-1.5 flex items-center justify-between border-b border-[#84a9d1] shadow-sm z-50 shrink-0">
@@ -464,12 +464,12 @@ export default function RoomView() {
               className={cn(
                 "w-full py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1 transition-all shadow-sm",
                 micSeats.some(s => s.user_id === user?.id) 
-                  ? "bg-orange-500 text-white hover:bg-orange-600" 
+                  ? "bg-red-500 text-white hover:bg-red-600" 
                   : "bg-[#1e3a5f] text-white hover:bg-[#2a4e7c]"
               )}
             >
               <Mic size={11} /> 
-              {micSeats.some(s => s.user_id === user?.id) ? 'ترك المايك' : 'طلب الكلام'}
+              {micSeats.some(s => s.user_id === user?.id) ? "اترك المايك" : "طلب الكلام"}
             </button>
             <button
               onClick={() => setIsLocalMuted(!isLocalMuted)}

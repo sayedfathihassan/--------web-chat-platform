@@ -207,23 +207,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const alreadyJoined = get().alreadyJoinedUserIds;
         
         // Skip entry animation if:
-        // 1. It's me entering (and I want others to see it, not me)
-        // 2. The user was already joined (this is just a presence update)
-        // 3. The join happened very shortly after a previous one (to avoid sync noise)
-        if (myUser && (presence.userId === myUser.id || alreadyJoined.has(presence.userId))) {
-          // Still add to set to be sure
-          if (presence.userId) {
-            set((state) => ({ alreadyJoinedUserIds: new Set(state.alreadyJoinedUserIds).add(presence.userId) }));
-          }
+        // 1. It's me entering
+        // 2. The user was already joined in this session
+        if (myUser && (key === myUser.id || alreadyJoined.has(key))) {
+          set((state) => ({ alreadyJoinedUserIds: new Set(state.alreadyJoinedUserIds).add(key) }));
           return;
         }
         
         console.log(`[Supabase Store] User Joined: ${key}`);
         
         // Mark as joined
-        if (presence.userId) {
-          set((state) => ({ alreadyJoinedUserIds: new Set(state.alreadyJoinedUserIds).add(presence.userId) }));
-        }
+        set((state) => ({ alreadyJoinedUserIds: new Set(state.alreadyJoinedUserIds).add(key) }));
         
         // Broadcast custom entrance if equipped
         const entryEffectItem = DEFAULT_SHOP_ITEMS.find(i => i.id === presence.equipped_entry_effect);

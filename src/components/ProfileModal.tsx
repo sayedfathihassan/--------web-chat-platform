@@ -373,11 +373,11 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
                 if (i.category !== activeCategory) return false;
                 if (isOwned(i.id)) return false;
                 
-                // Gender filtering for avatars
+                // Gender filtering for avatars using preview_css
                 if (i.category === 'avatar') {
                   const userGender = currentUser?.gender || 'boy';
-                  if (i.id.includes('av-boy-') && userGender === 'girl') return false;
-                  if (i.id.includes('av-girl-') && userGender === 'boy') return false;
+                  if (i.preview_css === 'avatar-boy' && userGender === 'girl') return false;
+                  if (i.preview_css === 'avatar-girl' && userGender === 'boy') return false;
                 }
                 
                 return true;

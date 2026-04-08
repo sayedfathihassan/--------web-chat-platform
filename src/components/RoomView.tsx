@@ -243,6 +243,12 @@ export default function RoomView() {
     const seat = micSeats.find(s => s.seat_number === seatNumber);
     const myCurrentSeat = micSeats.find(s => s.user_id === user.id);
 
+    // 0. Prevent taking multiple seats
+    if (myCurrentSeat && myCurrentSeat.seat_number !== seatNumber && !seat?.user_id) {
+       alert('أنت تمتلك مقعد مايك بالفعل. يرجى ترك مقعدك الحالي أولاً إذا أردت الانتقال لمقعد آخر.');
+       return;
+    }
+
     // 1. If seat is occupied
     if (seat?.user_id) {
       // If I am an admin/owner, I can kick

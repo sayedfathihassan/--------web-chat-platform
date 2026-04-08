@@ -19,11 +19,29 @@ export const DEFAULT_SHOP_ITEMS = [
   // 10. Badges
   { id: '66666666-6666-6666-6666-666666666666', name_ar: 'شارة VIP', category: 'badge', image_url: '💎', preview_css: 'badge-vip', points_cost: 2000, is_active: true },
   { id: '77777777-7777-7777-7777-777777777777', name_ar: 'شارة الأسطورة', category: 'badge', image_url: '🏆', preview_css: 'badge-legend', points_cost: 5000, is_active: true },
-  // 11. Custom Avatars
-  { id: 'av-boy-1', name_ar: 'أفاتار فتى 1', category: 'avatar', image_url: '🧔', preview_css: 'avatar-boy-1', points_cost: 0, is_active: true },
-  { id: 'av-girl-1', name_ar: 'أفاتار فتاة 1', category: 'avatar', image_url: '👩', preview_css: 'avatar-girl-1', points_cost: 0, is_active: true },
-  { id: 'av-king-1', name_ar: 'أفاتار ملكي', category: 'avatar', image_url: '🤴', preview_css: 'avatar-king', points_cost: 5000, is_active: true },
-  { id: 'av-queen-1', name_ar: 'أفاتار ملكة', category: 'avatar', image_url: '👸', preview_css: 'avatar-queen', points_cost: 5000, is_active: true },
+  // 11. Custom Avatars - Boys (10 Items)
+  { id: 'av-boy-1', name_ar: 'الشاب الأنيق', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix', preview_css: 'avatar-boy', points_cost: 100, is_active: true },
+  { id: 'av-boy-2', name_ar: 'المغامر الشجاع', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Max', preview_css: 'avatar-boy', points_cost: 200, is_active: true },
+  { id: 'av-boy-3', name_ar: 'النينجا الغامض', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack', preview_css: 'avatar-boy', points_cost: 500, is_active: true },
+  { id: 'av-boy-4', name_ar: 'ملك القراصنة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo', preview_css: 'avatar-boy', points_cost: 1000, is_active: true },
+  { id: 'av-boy-5', name_ar: 'اللاعب المحترف', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Milo', preview_css: 'avatar-boy', points_cost: 300, is_active: true },
+  { id: 'av-boy-6', name_ar: 'رجل الأعمال', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jasper', preview_css: 'avatar-boy', points_cost: 1500, is_active: true },
+  { id: 'av-boy-7', name_ar: 'الموسيقار المبدع', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver', preview_css: 'avatar-boy', points_cost: 400, is_active: true },
+  { id: 'av-boy-8', name_ar: 'فارس الظلام', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow', preview_css: 'avatar-boy', points_cost: 2000, is_active: true },
+  { id: 'av-boy-9', name_ar: 'القائد العسكري', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=General', preview_css: 'avatar-boy', points_cost: 1200, is_active: true },
+  { id: 'av-boy-10', name_ar: 'الأسطورة الذهبية', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Gold', preview_css: 'avatar-boy', points_cost: 5000, is_active: true },
+  
+  // 12. Custom Avatars - Girls (10 Items)
+  { id: 'av-girl-1', name_ar: 'الفتاة الحالمة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna', preview_css: 'avatar-girl', points_cost: 100, is_active: true },
+  { id: 'av-girl-2', name_ar: 'الملكة المتوجة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Queen', preview_css: 'avatar-girl', points_cost: 1500, is_active: true },
+  { id: 'av-girl-3', name_ar: 'زهرة اللوتس', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lily', preview_css: 'avatar-girl', points_cost: 300, is_active: true },
+  { id: 'av-girl-4', name_ar: 'سيدة الأناقة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Grace', preview_css: 'avatar-girl', points_cost: 800, is_active: true },
+  { id: 'av-girl-5', name_ar: 'المبدعة الصغيرة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mia', preview_css: 'avatar-girl', points_cost: 200, is_active: true },
+  { id: 'av-girl-6', name_ar: 'فراشة الربيع', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bella', preview_css: 'avatar-girl', points_cost: 400, is_active: true },
+  { id: 'av-girl-7', name_ar: 'أميرة القصر', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Princess', preview_css: 'avatar-girl', points_cost: 2500, is_active: true },
+  { id: 'av-girl-8', name_ar: 'الفارسة الشجاعة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aria', preview_css: 'avatar-girl', points_cost: 600, is_active: true },
+  { id: 'av-girl-9', name_ar: 'نجمة السينما', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Star', preview_css: 'avatar-girl', points_cost: 3000, is_active: true },
+  { id: 'av-girl-10', name_ar: 'الجوهرة المصونة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jewel', preview_css: 'avatar-girl', points_cost: 4500, is_active: true },
 ];
 
 export const DEFAULT_GIFTS: Gift[] = [
@@ -58,6 +76,7 @@ export interface User {
   points: number;
   is_guest: boolean;
   role?: Role;
+  gender: 'boy' | 'girl';
   items?: string[];
   total_gifts_sent?: number;
   total_gifts_received?: number;

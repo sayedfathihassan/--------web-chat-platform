@@ -245,18 +245,8 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
                     profile.avatar_url || '🧔'
                   )}
                 </div>
-                {isEditing && isSelf && (
                   <div className="absolute -left-2 -bottom-2 flex flex-col gap-1">
-                    <button 
-                      onClick={() => setProfile({...profile, avatar_url: '🧔'})}
-                      className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center bg-white shadow-sm", profile.avatar_url==='🧔' ? 'border-blue-500 scale-110' : 'border-gray-200')}
-                    >🧔</button>
-                    <button 
-                      onClick={() => setProfile({...profile, avatar_url: '👩'})}
-                      className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center bg-white shadow-sm", profile.avatar_url==='👩' ? 'border-pink-500 scale-110' : 'border-gray-200')}
-                    >👩</button>
                   </div>
-                )}
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1 min-w-0">
@@ -379,7 +369,19 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
 
             {/* Shop Items Grid */}
             <div className="p-3 grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 overflow-y-auto custom-scrollbar flex-1 bg-[#f8fbff] content-start">
-              {shopItems.filter(i => i.category === activeCategory && !isOwned(i.id)).map(item => {
+              {shopItems.filter(i => {
+                if (i.category !== activeCategory) return false;
+                if (isOwned(i.id)) return false;
+                
+                // Gender filtering for avatars
+                if (i.category === 'avatar') {
+                  const userGender = currentUser?.gender || 'boy';
+                  if (i.id.includes('av-boy-') && userGender === 'girl') return false;
+                  if (i.id.includes('av-girl-') && userGender === 'boy') return false;
+                }
+                
+                return true;
+              }).map(item => {
                 const canAfford = (currentUser?.points || 0) >= item.points_cost;
 
                 return (
@@ -389,8 +391,12 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-white rounded-xl border border-[#84a9d1]/30 hover:border-orange-400 p-2 flex flex-col items-center justify-between shadow-sm transition-all relative overflow-hidden aspect-[4/5] group"
                   >
-                    <div className="w-full flex-1 rounded-lg flex items-center justify-center text-3xl bg-gradient-to-br from-[#eef4f9] to-[#deedf7] group-hover:scale-105 transition-transform">
-                      {item.image_url}
+                    <div className="w-full flex-1 rounded-lg flex items-center justify-center text-3xl bg-gradient-to-br from-[#eef4f9] to-[#deedf7] group-hover:scale-105 transition-transform overflow-hidden">
+                      {item.image_url.startsWith('http') ? (
+                        <img src={item.image_url} className="w-full h-full object-contain p-1" alt="" />
+                      ) : (
+                        item.image_url
+                      )}
                     </div>
                     
                     <div className="text-center w-full">

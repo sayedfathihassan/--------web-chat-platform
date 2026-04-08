@@ -12,6 +12,7 @@ export default function Login() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [gender, setGender] = useState<'boy' | 'girl'>('boy');
   const { siteSettings } = useChatStore();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -82,6 +83,7 @@ export default function Login() {
             points: 100,
             is_guest: false,
             role: 'member',
+            gender: gender,
           }, { onConflict: 'id' });
 
           if (profileError) {
@@ -161,16 +163,37 @@ export default function Login() {
             <div className="flex items-center gap-5 mb-2">
               <div className="w-20 h-20 bg-white border-4 border-[#84a9d1]/30 rounded-2xl shadow-lg overflow-hidden shrink-0">
                 <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`}
+                  src={gender === 'boy' 
+                    ? `https://api.dicebear.com/7.x/avataaars/svg?seed=Felix` 
+                    : `https://api.dicebear.com/7.x/avataaars/svg?seed=Luna`}
                   alt="Avatar"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="flex-1">
-                <p className="text-xs font-black text-[#1e3a5f] mb-1">صورتك الرمزية</p>
-                <p className="text-[10px] text-[#84a9d1] font-bold leading-relaxed">
-                  تتغير تلقائياً حسب اسم المستخدم
-                </p>
+                <p className="text-xs font-black text-[#1e3a5f] mb-2">نوع الحساب</p>
+                <div className="flex bg-white/60 p-1 rounded-xl border border-[#84a9d1]/20">
+                  <button
+                    type="button"
+                    onClick={() => setGender('boy')}
+                    className={cn(
+                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
+                      gender === 'boy' ? "bg-blue-500 text-white shadow-md shadow-blue-500/20" : "text-[#84a9d1]"
+                    )}
+                  >
+                    ولد 🧔
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender('girl')}
+                    className={cn(
+                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
+                      gender === 'girl' ? "bg-pink-500 text-white shadow-md shadow-pink-500/20" : "text-[#84a9d1]"
+                    )}
+                  >
+                    بنت 👩
+                  </button>
+                </div>
               </div>
             </div>
 

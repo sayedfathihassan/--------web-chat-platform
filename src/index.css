@@ -59,82 +59,77 @@
     animation: spin-slow 8s linear infinite;
   }
 
-  /* SHOP FRAMES */
+  /* ── PREMIUM ORNAMENTAL FRAMES ── */
+  /* These classes are applied to the wrapper div around the avatar image */
+  
   .frame-king {
-    border: 3px solid #ffd700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.5);
-    z-index: 10;
-  }
-  .frame-king::after {
-    content: "👑";
-    position: absolute;
-    top: -20px;
-    right: -12px;
-    font-size: 24px;
-    filter: drop-shadow(0 0 5px gold);
-    z-index: 20;
+    outline: 4px double #ffd700;
+    box-shadow: 
+      0 0 0 2px #b8860b,
+      0 0 15px rgba(255, 215, 0, 0.4),
+      inset 0 0 10px rgba(255, 215, 0, 0.3);
+    border-radius: 1rem;
+    position: relative;
+    background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+    padding: 3px;
   }
 
   .frame-fire {
-    border: 3px solid #ff4500;
-    box-shadow: 0 0 15px rgba(255, 69, 0, 0.8), inset 0 0 10px rgba(255, 140, 0, 0.5);
-    animation: fire-pulse 1s infinite alternate;
-    z-index: 10;
+    outline: 4px double #ff4500;
+    box-shadow: 
+      0 0 0 2px #8b0000,
+      0 0 15px rgba(255, 69, 0, 0.5),
+      inset 0 0 10px rgba(255, 69, 0, 0.4);
+    border-radius: 1rem;
+    position: relative;
+    background: linear-gradient(135deg, #ff4500 0%, #8b0000 100%);
+    padding: 3px;
+    animation: flame-glow 1.5s infinite alternate;
   }
-  @keyframes fire-pulse {
-    0% { box-shadow: 0 0 10px #ff4500; border-color: #ff4500; }
-    100% { box-shadow: 0 0 20px #ff8c00; border-color: #ff8c00; }
-  }
-  .frame-fire::after {
-    content: "🔥";
-    position: absolute;
-    bottom: -12px;
-    right: -12px;
-    font-size: 22px;
-    filter: drop-shadow(0 0 5px red);
-    z-index: 20;
+  @keyframes flame-glow {
+    from { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
+    to { box-shadow: 0 0 25px rgba(255, 69, 0, 0.8); }
   }
 
   .frame-diamond {
-    border: 3px solid #00ffff;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8), inset 0 0 10px rgba(0, 255, 255, 0.5);
-    z-index: 10;
-  }
-  .frame-diamond::after {
-    content: "💎";
-    position: absolute;
-    bottom: -12px;
-    left: -12px;
-    font-size: 22px;
-    filter: drop-shadow(0 0 5px cyan);
-    z-index: 20;
+    outline: 4px double #00ffff;
+    box-shadow: 
+      0 0 0 2px #008b8b,
+      0 0 20px rgba(0, 255, 255, 0.4),
+      inset 0 0 12px rgba(0, 255, 255, 0.3);
+    border-radius: 1rem;
+    position: relative;
+    background: linear-gradient(135deg, #00ffff 0%, #008b8b 100%);
+    padding: 3px;
   }
 
   .frame-ninja {
-    border: 3px solid #000;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(50, 50, 50, 0.5);
-    z-index: 10;
-  }
-  .frame-ninja::after {
-    content: "🥷";
-    position: absolute;
-    top: -15px;
-    left: -15px;
-    font-size: 24px;
-    z-index: 20;
+    outline: 4px double #1a1a1a;
+    box-shadow: 
+      0 0 0 2px #000,
+      0 0 15px rgba(0, 0, 0, 0.6),
+      inset 0 0 10px rgba(50, 50, 50, 0.5);
+    border-radius: 1rem;
+    position: relative;
+    background: linear-gradient(135deg, #333 0%, #000 100%);
+    padding: 3px;
   }
 
   .frame-nature {
-    border: 3px solid #22c55e;
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8), inset 0 0 10px rgba(34, 197, 94, 0.5);
-    z-index: 10;
+    outline: 4px double #22c55e;
+    box-shadow: 
+      0 0 0 2px #14532d,
+      0 0 15px rgba(34, 197, 94, 0.4),
+      inset 0 0 10px rgba(34, 197, 94, 0.3);
+    border-radius: 1rem;
+    position: relative;
+    background: linear-gradient(135deg, #22c55e 0%, #14532d 100%);
+    padding: 3px;
   }
-  .frame-nature::after {
-    content: "🌿";
-    position: absolute;
-    top: -15px;
-    right: -15px;
-    font-size: 22px;
-    z-index: 20;
+
+  /* Helper for Badge rendering next to name */
+  .name-badge {
+    @apply inline-flex items-center justify-center translate-y-[-1px] ml-1 select-none;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.1));
   }
 }

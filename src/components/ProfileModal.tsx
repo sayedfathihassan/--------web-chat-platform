@@ -237,17 +237,24 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
           <div className="p-6 space-y-5 bg-[#f8fbff]">
             {/* Avatar + Name */}
             <div className="flex items-center gap-5 bg-white p-4 rounded-2xl shadow-sm border border-[#84a9d1]/20">
-              <div className={cn("relative shrink-0 flex items-center justify-center p-1 rounded-2xl", profile.equipped_frame)}>
-                <div className="w-24 h-24 rounded-2xl border-4 border-[#84a9d1]/30 bg-[#f0f4f8] shadow-lg flex items-center justify-center text-5xl overflow-hidden bg-white">
-                  {profile.avatar_url?.startsWith('http') ? (
+              <div className="relative shrink-0 w-24 h-24">
+                {/* Base Avatar Container */}
+                <div className="w-full h-full rounded-2xl border-4 border-[#84a9d1]/30 bg-[#f0f4f8] shadow-lg flex items-center justify-center text-5xl overflow-hidden bg-white relative">
+                  {profile.avatar_url?.startsWith('http') || profile.avatar_url?.startsWith('/') ? (
                     <img src={profile.avatar_url} className="w-full h-full object-cover" alt="" />
                   ) : (
                     profile.avatar_url || '🧔'
                   )}
                 </div>
-                  <div className="absolute -left-2 -bottom-2 flex flex-col gap-1">
-                  </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+
+                {/* Ornamental Frame Overlay */}
+                {(() => {
+                  const frameItem = shopItems.find(s => s.id === profile.equipped_frame)
+                                 || shopItems.find(s => s.category === 'frame' && s.preview_css === profile.equipped_frame);
+                  return frameItem ? <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div> : null;
+                })()}
+
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white z-20"></div>
               </div>
               <div className="flex-1 min-w-0">
                 {isEditing ? (
@@ -260,9 +267,11 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
                 ) : (
                   <h3 className="text-xl font-black text-[#1e3a5f] truncate flex items-center gap-2">
                     {profile.display_name}
-                    {userItems.some(i => i.is_equipped && shopItems.find(s=>s.id===i.item_id)?.category === 'badge') && (
-                      <span className="text-sm bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-0.5 rounded-full shadow-sm text-[10px]">VIP</span>
-                    )}
+                    {(() => {
+                      const badgeItem = shopItems.find(s => s.id === profile.equipped_badge)
+                                     || shopItems.find(s => s.category === 'badge' && s.preview_css === profile.equipped_badge);
+                      return badgeItem ? <span className="name-badge">{badgeItem.image_url}</span> : null;
+                    })()}
                   </h3>
                 )}
                 <span className="text-xs text-[#84a9d1] font-bold">@{profile.username}</span>

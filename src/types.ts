@@ -1,13 +1,14 @@
 export type Role = 'owner' | 'super_admin' | 'admin' | 'friend' | 'member' | 'guest';
 
 export const DEFAULT_SHOP_ITEMS = [
-  // Frames
-  { id: '11111111-1111-1111-1111-111111111111', name_ar: 'إطار الملك', category: 'frame', image_url: '👑', preview_css: 'frame-king', points_cost: 500, is_active: true },
-  { id: '22222222-2222-2222-2222-222222222222', name_ar: 'إطار الجحيم', category: 'frame', image_url: '🔥', preview_css: 'frame-fire', points_cost: 800, is_active: true },
-  { id: '33333333-3333-3333-3333-333333333333', name_ar: 'إطار الألماس', category: 'frame', image_url: '💎', preview_css: 'frame-diamond', points_cost: 1500, is_active: true },
-  { id: '88888888-8888-8888-8888-888888888888', name_ar: 'إطار النينجا', category: 'frame', image_url: '🥷', preview_css: 'frame-ninja', points_cost: 1000, is_active: true },
-  { id: '99999999-9999-9999-9999-999999999999', name_ar: 'إطار الغابة', category: 'frame', image_url: '🌿', preview_css: 'frame-nature', points_cost: 600, is_active: true },
-  // Entry Effects
+  // ─── Frames (Ornamental Decorative Borders) ───
+  { id: '11111111-1111-1111-1111-111111111111', name_ar: 'إطار الملك المذهب', category: 'frame', image_url: '👑', preview_css: 'frame-king', points_cost: 500, is_active: true },
+  { id: '22222222-2222-2222-2222-222222222222', name_ar: 'إطار نار الجحيم', category: 'frame', image_url: '🔥', preview_css: 'frame-fire', points_cost: 800, is_active: true },
+  { id: '33333333-3333-3333-3333-333333333333', name_ar: 'إطار الألماس المشع', category: 'frame', image_url: '💎', preview_css: 'frame-diamond', points_cost: 1500, is_active: true },
+  { id: '88888888-8888-8888-8888-888888888888', name_ar: 'إطار النينجا الليلي', category: 'frame', image_url: '🥷', preview_css: 'frame-ninja', points_cost: 1000, is_active: true },
+  { id: '99999999-9999-9999-9999-999999999999', name_ar: 'إطار الطبيعة الخلابة', category: 'frame', image_url: '🌿', preview_css: 'frame-nature', points_cost: 600, is_active: true },
+
+  // ─── Entry Effects (Visual Join Animations) ───
   { id: '44444444-4444-4444-4444-444444444444', name_ar: 'دخول العظماء', category: 'entry_effect', image_url: '🎺', preview_css: 'entry-royal', points_cost: 2000, is_active: true },
   { id: '55555555-5555-5555-5555-555555555555', name_ar: 'دخول ناري', category: 'entry_effect', image_url: '🔥', preview_css: 'entry-fire', points_cost: 1500, is_active: true },
   { id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', name_ar: 'دخول رومانسي', category: 'entry_effect', image_url: '💖', preview_css: 'entry-heart', points_cost: 1800, is_active: true },
@@ -16,26 +17,20 @@ export const DEFAULT_SHOP_ITEMS = [
   { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd', name_ar: 'رفرفة العصفورة', category: 'entry_effect', image_url: '🦅', preview_css: 'entry-bird', points_cost: 1200, is_active: true },
   { id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', name_ar: 'زئير الأسد', category: 'entry_effect', image_url: '🦁', preview_css: 'entry-lion', points_cost: 3500, is_active: true },
   { id: 'ffffffff-ffff-ffff-ffff-ffffffffffff', name_ar: 'دخول الدب', category: 'entry_effect', image_url: '🐻', preview_css: 'entry-bear', points_cost: 2000, is_active: true },
-  // 10. Badges
-  { id: '66666666-6666-6666-6666-666666666666', name_ar: 'شارة VIP', category: 'badge', image_url: '💎', preview_css: 'badge-vip', points_cost: 2000, is_active: true },
-  { id: '77777777-7777-7777-7777-777777777777', name_ar: 'شارة الأسطورة', category: 'badge', image_url: '🏆', preview_css: 'badge-legend', points_cost: 5000, is_active: true },
-  // 11. Custom Avatars - Boys (10 Items)
+
+  // ─── Badges (Icons next to username) ───
+  { id: 'bbbbbbbb-1111-1111-1111-111111111111', name_ar: 'شارة VIP الماسية', category: 'badge', image_url: '💎', preview_css: 'badge-vip', points_cost: 2000, is_active: true },
+  { id: 'cccccccc-2222-2222-2222-222222222222', name_ar: 'شارة الأسطورة الذهبية', category: 'badge', image_url: '🏆', preview_css: 'badge-legend', points_cost: 5000, is_active: true },
+  { id: 'dddddddd-3333-3333-3333-333333333333', name_ar: 'نجم الموقع', category: 'badge', image_url: '🌟', preview_css: 'badge-star', points_cost: 1000, is_active: true },
+  { id: 'eeeeeeee-4444-4444-4444-444444444444', name_ar: 'قلب طيب', category: 'badge', image_url: '❤️', preview_css: 'badge-heart', points_cost: 500, is_active: true },
+
+  // ─── Custom Avatars ───
   { id: 'a0a0a0a0-1111-4000-8000-000000000001', name_ar: 'الشاب الأنيق', category: 'avatar', image_url: '/avatars/boy-1.png', preview_css: 'avatar-boy', points_cost: 100, is_active: true },
   { id: 'a0a0a0a0-1111-4000-8000-000000000002', name_ar: 'المغامر الشجاع', category: 'avatar', image_url: '/avatars/boy-2.png', preview_css: 'avatar-boy', points_cost: 200, is_active: true },
   { id: 'a0a0a0a0-1111-4000-8000-000000000003', name_ar: 'النينجا الغامض', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Felix&backgroundColor=b6e3f4', preview_css: 'avatar-boy', points_cost: 500, is_active: true },
   { id: 'a0a0a0a0-1111-4000-8000-000000000004', name_ar: 'ملك القراصنة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Liam&backgroundColor=c0aede', preview_css: 'avatar-boy', points_cost: 1000, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000005', name_ar: 'اللاعب المحترف', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Milo&backgroundColor=d1d4f9', preview_css: 'avatar-boy', points_cost: 300, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000006', name_ar: 'رجل الأعمال', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Oliver&backgroundColor=ffd5dc', preview_css: 'avatar-boy', points_cost: 1500, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000007', name_ar: 'الموسيقار المبدع', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Leo&backgroundColor=ffdfbf', preview_css: 'avatar-boy', points_cost: 400, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000008', name_ar: 'فارس الظلام', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Max&backgroundColor=c0aede', preview_css: 'avatar-boy', points_cost: 2000, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000009', name_ar: 'القائد العسكري', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Jack&backgroundColor=b6e3f4', preview_css: 'avatar-boy', points_cost: 1200, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000010', name_ar: 'الأسطورة الذهبية', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Zoe&backgroundColor=d1d4f9', preview_css: 'avatar-boy', points_cost: 5000, is_active: true },
-  
-  // 12. Custom Avatars - Girls (10 Items)
   { id: 'e0e0e0e0-2222-4000-8000-000000000001', name_ar: 'الفتاة الحالمة', category: 'avatar', image_url: '/avatars/girl-1.png', preview_css: 'avatar-girl', points_cost: 100, is_active: true },
   { id: 'e0e0e0e0-2222-4000-8000-000000000002', name_ar: 'الملكة المتوجة', category: 'avatar', image_url: '/avatars/girl-2.png', preview_css: 'avatar-girl', points_cost: 1500, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000003', name_ar: 'زهرة اللوتس', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Luna&backgroundColor=ffd5dc', preview_css: 'avatar-girl', points_cost: 300, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000004', name_ar: 'سيدة الأناقة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Maya&backgroundColor=ffdfbf', preview_css: 'avatar-girl', points_cost: 800, is_active: true },
   { id: 'e0e0e0e0-2222-4000-8000-000000000005', name_ar: 'المبدعة الصغيرة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Nala&backgroundColor=c0aede', preview_css: 'avatar-girl', points_cost: 200, is_active: true },
   { id: 'e0e0e0e0-2222-4000-8000-000000000006', name_ar: 'فراشة الربيع', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Jade&backgroundColor=b6e3f4', preview_css: 'avatar-girl', points_cost: 400, is_active: true },
   { id: 'e0e0e0e0-2222-4000-8000-000000000007', name_ar: 'أميرة القصر', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Bella&backgroundColor=d1d4f9', preview_css: 'avatar-girl', points_cost: 2500, is_active: true },

@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useChatStore } from '../store/useChatStore';
+import { DEFAULT_SHOP_ITEMS } from '../types';
+import { cn } from '../lib/utils';
 
 interface MyStatusModalProps {
   isOpen: boolean;
@@ -41,15 +43,32 @@ export default function MyStatusModal({ isOpen, onClose }: MyStatusModalProps) {
 
           <div className="p-4">
             <div className="flex gap-4 mb-6">
-              <div className="w-20 h-20 border border-[#84a9d1] bg-white flex items-center justify-center">
-                <img 
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}`} 
-                  alt="Avatar" 
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative w-20 h-20 shrink-0">
+                {/* Base Avatar */}
+                <div className="w-full h-full border border-[#84a9d1] bg-white flex items-center justify-center overflow-hidden relative">
+                  {user?.avatar_url?.startsWith('http') || user?.avatar_url?.startsWith('/') ? (
+                    <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    <span className="text-4xl">{user?.avatar_url || '🧔'}</span>
+                  )}
+                </div>
+
+                {/* Ornamental Frame Overlay */}
+                {(() => {
+                  const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (user as any)?.equipped_frame)
+                                 || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === (user as any)?.equipped_frame);
+                  return frameItem ? <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div> : null;
+                })()}
               </div>
               <div className="flex-1">
-                <div className="text-sm font-bold text-[#1e3a5f] mb-2">الاسم: {user?.display_name}</div>
+                <div className="text-sm font-bold text-[#1e3a5f] mb-2 flex items-center gap-1.5">
+                  الاسم: {user?.display_name}
+                  {(() => {
+                    const badgeItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (user as any)?.equipped_badge)
+                                   || DEFAULT_SHOP_ITEMS.find(s => s.category === 'badge' && s.preview_css === (user as any)?.equipped_badge);
+                    return badgeItem ? <span className="name-badge">{badgeItem.image_url}</span> : null;
+                  })()}
+                </div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   {statusOptions.map((option) => (
                     <label key={option.id} className="flex items-center gap-2 cursor-pointer">

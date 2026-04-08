@@ -405,11 +405,16 @@ export default function RoomView() {
                     <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <span className={cn(
-                          "text-[11px] font-black truncate group-hover:text-orange-600 transition-colors",
+                          "text-[11px] font-black truncate group-hover:text-orange-600 transition-colors flex items-center gap-1",
                           isThisRoomOwner ? 'text-orange-600' :
                           roomModeratorIds.includes(u.id) ? 'text-blue-700' : 'text-[#1e3a5f]'
                         )}>
                           {isSelf ? `${u.displayName} (أنت)` : u.displayName}
+                          {(() => {
+                            const badgeItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (u as any).equipped_badge)
+                                           || DEFAULT_SHOP_ITEMS.find(s => s.category === 'badge' && s.preview_css === (u as any).equipped_badge);
+                            return badgeItem ? <span className="name-badge">{badgeItem.image_url}</span> : null;
+                          })()}
                         </span>
                         <span className="text-[8px] font-bold text-[#5a7a9a] shrink-0">#{u.shortId || '---'}</span>
                         {isThisRoomOwner && <Crown size={10} className="text-orange-500 fill-orange-500 shrink-0" title="صاحب الغرفة" />}
@@ -552,20 +557,21 @@ export default function RoomView() {
                     )}
                   >
                     {seat?.user_id ? (
-                      <div className={cn("relative flex items-center justify-center p-0.5 rounded-lg w-full h-full", equippedFrame)}>
-                        <div className="w-full h-full rounded-lg bg-slate-100 flex items-center justify-center text-2xl overflow-hidden relative z-10">
+                      <div className="relative flex items-center justify-center w-full h-full">
+                        {/* Base Avatar Container */}
+                        <div className="w-full h-full rounded-lg bg-slate-100 flex items-center justify-center text-2xl overflow-hidden relative border-2 border-slate-200">
                           {(seatUser as any)?.avatar_url?.startsWith('http') || (seatUser as any)?.avatar_url?.startsWith('/') ? (
                             <img src={(seatUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
                           ) : (
                             (seatUser as any)?.avatar_url || '🧔'
                           )}
                           
-                          {/* LiveKit Voice Visualizer (Real-time) */}
+                          {/* LiveKit Voice Visualizer */}
                           {seatUser && (
                             <div className="absolute inset-0 bg-orange-500/10 flex items-end justify-center gap-0.5 pb-1 z-20 pointer-events-none">
                               {(() => {
                                 const level = audioLevels[seatUser.id] || 0;
-                                const boosted = Math.min(level * 50, 40); // Boost for visibility
+                                const boosted = Math.min(level * 50, 40);
                                 return [1, 2, 3, 2, 1].map((h, j) => (
                                   <motion.div
                                     key={j}
@@ -578,6 +584,15 @@ export default function RoomView() {
                             </div>
                           )}
                         </div>
+
+                        {/* Ornamental Frame Overlay */}
+                        {(() => {
+                          const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === equippedFrame)
+                                         || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === equippedFrame);
+                          const frameClass = frameItem?.preview_css;
+                          return frameClass ? <div className={cn("absolute inset-0 z-10", frameClass)}></div> : null;
+                        })()}
+
                         {seat.is_muted && (
                           <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 border border-white z-20">
                             <VolumeX size={8} />
@@ -645,23 +660,10 @@ export default function RoomView() {
                                )}
                              </div>
                              
-                             {/* Independent Frame Overlay (No Overflow Hidden) */}
+                             {/* Independent Frame Overlay */}
                              {frameClass && (
-                               <div className={cn("absolute inset-0 rounded-xl pointer-events-none z-10", frameClass)}></div>
+                               <div className={cn("absolute inset-0 z-10", frameClass)}></div>
                              )}
-
-                             {/* Badge Overlay (Bottom Corner) */}
-                             {(() => {
-                               const badgeItem = DEFAULT_SHOP_ITEMS.find(s => s.id === msgUser?.equipped_badge)
-                                              || DEFAULT_SHOP_ITEMS.find(s => s.category === 'badge' && s.preview_css === (msgUser as any)?.equipped_badge);
-                               return badgeItem ? (
-                                 <div className="absolute -bottom-1 -right-1 z-20 flex items-center justify-center">
-                                   <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full p-0.5 shadow-lg border border-white animate-pulse">
-                                     <span className="text-[10px]">{badgeItem.image_url}</span>
-                                   </div>
-                                 </div>
-                               ) : null;
-                             })()}
                            </div>
                          );
                       })()}
@@ -685,8 +687,15 @@ export default function RoomView() {
                               </span>
                             );
                           })()}
-                          <span className="text-[11px] font-black whitespace-nowrap" style={{ color: msg.roleColor }}>
-                            {msg.displayName} {msg.shortId ? `(${msg.shortId})` : ''}
+                          <span className="text-[11px] font-black whitespace-nowrap flex items-center gap-1" style={{ color: msg.roleColor }}>
+                            {msg.displayName}
+                            {(() => {
+                              const msgUser = onlineUsers.find(u => u.id === msg.userId) || (msg.userId === user?.id ? user : null) as any;
+                              const badgeItem = DEFAULT_SHOP_ITEMS.find(s => s.id === msgUser?.equipped_badge)
+                                             || DEFAULT_SHOP_ITEMS.find(s => s.category === 'badge' && s.preview_css === (msgUser as any)?.equipped_badge);
+                              return badgeItem ? <span className="name-badge">{badgeItem.image_url}</span> : null;
+                            })()}
+                            {msg.shortId ? `(${msg.shortId})` : ''}
                           </span>
                           <span className="text-[9px] text-[#84a9d1]">
                             {new Date(msg.timestamp).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })}

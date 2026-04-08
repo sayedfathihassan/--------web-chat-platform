@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { useChatStore } from '../store/useChatStore';
-import { User, Room, Gift } from '../types';
+import { User, Room, Gift, DEFAULT_SHOP_ITEMS } from '../types';
 import {
   Users, MessageSquare, Gift as GiftIcon, Shield, Search, X,
   Trash2, Edit, Plus, Activity, TrendingUp, Ban, Check,
@@ -322,16 +322,34 @@ export default function AdminDashboard() {
                                   <tr key={u.id} className="hover:bg-blue-50/30 transition-colors group">
                                     <td className="p-4 md:p-5">
                                       <div className="flex items-center gap-4">
-                                        <div className="relative shrink-0">
-                                          {u.avatar_url?.startsWith('http') || u.avatar_url?.startsWith('/') ? (
-                                            <img src={u.avatar_url} className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md object-cover" alt="" />
-                                          ) : (
-                                            <div className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md flex items-center justify-center text-xl">{u.avatar_url || '👤'}</div>
-                                          )}
-                                          <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white", u.is_guest ? "bg-gray-400" : "bg-green-500")} />
+                                        <div className="relative shrink-0 w-12 h-12">
+                                          {/* Base Avatar Container */}
+                                          <div className="w-full h-full rounded-2xl bg-white border-2 border-white shadow-md flex items-center justify-center text-xl overflow-hidden relative">
+                                            {u.avatar_url?.startsWith('http') || u.avatar_url?.startsWith('/') ? (
+                                              <img src={u.avatar_url} className="w-full h-full object-cover" alt="" />
+                                            ) : (
+                                              u.avatar_url || '👤'
+                                            )}
+                                          </div>
+                                          
+                                          {/* Ornamental Frame Overlay */}
+                                          {(() => {
+                                            const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (u as any).equipped_frame)
+                                                           || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === (u as any).equipped_frame);
+                                            return frameItem ? <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div> : null;
+                                          })()}
+
+                                          <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white z-20", u.is_guest ? "bg-gray-400" : "bg-green-500")} />
                                         </div>
                                         <div className="min-w-0">
-                                          <div className="text-sm font-black text-[#1e3a5f] group-hover:text-orange-500 transition-colors font-sans truncate">{u.display_name}</div>
+                                          <div className="text-sm font-black text-[#1e3a5f] group-hover:text-orange-500 transition-colors font-sans truncate flex items-center gap-1">
+                                            {u.display_name}
+                                            {(() => {
+                                              const badgeItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (u as any).equipped_badge)
+                                                             || DEFAULT_SHOP_ITEMS.find(s => s.category === 'badge' && s.preview_css === (u as any).equipped_badge);
+                                              return badgeItem ? <span className="name-badge">{badgeItem.image_url}</span> : null;
+                                            })()}
+                                          </div>
                                           <div className="text-[10px] font-bold text-[#84a9d1]">@{u.username}</div>
                                         </div>
                                       </div>
@@ -385,7 +403,7 @@ export default function AdminDashboard() {
                                )}
                                <div className="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-2 py-1 rounded-full border border-white/30">
                                   <span className="text-[9px] font-black text-white">{room.is_private ? 'خاص 🔒' : 'عام 🌍'}</span>
-                               </div>
+                                </div>
                             </div>
                             <div className="p-4 md:p-6 flex flex-col flex-1">
                                <h3 className="text-sm md:text-lg font-black text-[#1e3a5f] mb-1 truncate">{room.name}</h3>

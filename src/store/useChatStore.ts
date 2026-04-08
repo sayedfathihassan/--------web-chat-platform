@@ -49,6 +49,8 @@ interface ChatState {
   audioRoom: any | null;
   audioToken: string | null;
   isAudioConnected: boolean;
+  audioLevels: Record<string, number>; // identity -> level (0-1)
+  setAudioLevel: (identity: string, level: number) => void;
 
   setUser: (user: User | null) => void;
   setCurrentRoom: (room: Room | null) => void;
@@ -114,6 +116,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   audioRoom: null,
   audioToken: null,
   isAudioConnected: false,
+  audioLevels: {},
+  setAudioLevel: (identity, level) => set(state => ({
+    audioLevels: { ...state.audioLevels, [identity]: level }
+  })),
   setSiteSettings: (siteSettings) => set({ siteSettings }),
 
   setUser: (user) => set({ user }),

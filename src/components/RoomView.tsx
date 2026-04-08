@@ -50,7 +50,8 @@ export default function RoomView() {
     showAdminDashboard, setShowAdminDashboard, setRoomPermissions, roomPermissions,
     roomModeratorIds, setRoomModeratorIds, isSoundEnabled, toggleSound, addReaction,
     roomModerators, setRoomModerators, 
-    connectAudio, disconnectAudio, publishAudio, isAudioConnected
+    connectAudio, disconnectAudio, publishAudio, isAudioConnected,
+    audioLevels, setAudioLevel, audioRoom
   } = useChatStore();
   const { playSound } = useSound();
 
@@ -124,6 +125,18 @@ export default function RoomView() {
 
     fetchData();
 
+    // Voice Visualizer Logic: Update levels every 100ms
+    const levelInterval = setInterval(() => {
+      if (audioRoom) {
+        audioRoom.remoteParticipants.forEach((p: any) => {
+          setAudioLevel(p.identity, p.audioLevel);
+        });
+        if (audioRoom.localParticipant) {
+          setAudioLevel(audioRoom.localParticipant.identity, audioRoom.localParticipant.audioLevel);
+        }
+      }
+    }, 100);
+
     const micSub = supabase.channel(`mic_seats_${currentRoom.id}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'mic_seats',
@@ -153,6 +166,7 @@ export default function RoomView() {
       micSub.unsubscribe(); 
       roomSub.unsubscribe(); 
       disconnectAudio();
+      clearInterval(levelInterval);
     };
   }, [currentRoom, user, setCurrentRoom]);
 
@@ -269,8 +283,16 @@ export default function RoomView() {
 
   const handleLeaveMic = async () => {
     if (!user || !currentRoom) return;
-    await supabase.from('mic_seats').delete().eq('room_id', currentRoom.id).eq('user_id', user.id);
-    publishAudio(false);
+    
+    // Optimistic UI: Update local state immediately
+    setMicSeats(prev => prev.map(s => s.user_id === user.id ? { ...s, user_id: null } : s));
+    
+    try {
+      await supabase.from('mic_seats').delete().eq('room_id', currentRoom.id).eq('user_id', user.id);
+      publishAudio(false);
+    } catch (err) {
+      console.error('Leave mic failed:', err);
+    }
   };
 
   const handleLeaveRoom = async () => {
@@ -532,17 +554,21 @@ export default function RoomView() {
                             (seatUser as any)?.avatar_url || '🧔'
                           )}
                           
-                          {/* LiveKit Voice Visualizer */}
+                          {/* LiveKit Voice Visualizer (Real-time) */}
                           {seatUser && (
                             <div className="absolute inset-0 bg-orange-500/10 flex items-end justify-center gap-0.5 pb-1 z-20 pointer-events-none">
-                              {[1, 2, 3, 2, 1].map((h, j) => (
-                                <motion.div
-                                  key={j}
-                                  animate={{ height: seatUser.id === user?.id ? [4, h * 8, 4] : 4 }}
-                                  transition={{ repeat: Infinity, duration: 0.5, delay: j * 0.1 }}
-                                  className="w-1 bg-orange-500 rounded-full"
-                                />
-                              ))}
+                              {(() => {
+                                const level = audioLevels[seatUser.id] || 0;
+                                const boosted = Math.min(level * 50, 40); // Boost for visibility
+                                return [1, 2, 3, 2, 1].map((h, j) => (
+                                  <motion.div
+                                    key={j}
+                                    animate={{ height: Math.max(4, boosted * (h / 3) + (Math.random() * 2)) }}
+                                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                                    className="w-1 bg-orange-500 rounded-full"
+                                  />
+                                ));
+                              })()}
                             </div>
                           )}
                         </div>

@@ -175,16 +175,6 @@ export default function Login() {
                 <div className="flex bg-white/60 p-1 rounded-xl border border-[#84a9d1]/20">
                   <button
                     type="button"
-                    onClick={() => setGender('boy')}
-                    className={cn(
-                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
-                      gender === 'boy' ? "bg-blue-500 text-white shadow-md shadow-blue-500/20" : "text-[#84a9d1]"
-                    )}
-                  >
-                    ولد 🧔
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => setGender('girl')}
                     className={cn(
                       "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
@@ -192,6 +182,16 @@ export default function Login() {
                     )}
                   >
                     بنت 👩
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender('boy')}
+                    className={cn(
+                      "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all",
+                      gender === 'boy' ? "bg-blue-500 text-white shadow-md shadow-blue-500/20" : "text-[#84a9d1]"
+                    )}
+                  >
+                    ولد 🧔
                   </button>
                 </div>
               </div>

@@ -43,9 +43,9 @@ export default function MyStatusModal({ isOpen, onClose }: MyStatusModalProps) {
 
           <div className="p-4">
             <div className="flex gap-4 mb-6">
-              <div className="relative w-20 h-20 shrink-0">
+              <div className="relative w-24 h-24 shrink-0">
                 {/* Base Avatar */}
-                <div className="w-full h-full border border-[#84a9d1] bg-white flex items-center justify-center overflow-hidden relative">
+                <div className="w-full h-full border border-[#84a9d1] bg-white rounded-full flex items-center justify-center overflow-hidden relative">
                   {user?.avatar_url?.startsWith('http') || user?.avatar_url?.startsWith('/') ? (
                     <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
                   ) : (
@@ -55,8 +55,15 @@ export default function MyStatusModal({ isOpen, onClose }: MyStatusModalProps) {
 
                 {/* Ornamental Frame Overlay */}
                 {(() => {
-                  const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (user as any)?.equipped_frame)
-                                 || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === (user as any)?.equipped_frame);
+                  const equippedFrame = (user as any)?.equipped_frame;
+                  if (!equippedFrame) return null;
+
+                  if (equippedFrame.startsWith('http')) {
+                    return <img src={equippedFrame} className="frame-image-overlay" alt="" />;
+                  }
+
+                  const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === equippedFrame)
+                                 || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === equippedFrame);
                   return frameItem ? <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div> : null;
                 })()}
               </div>

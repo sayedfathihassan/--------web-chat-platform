@@ -350,7 +350,7 @@ export default function AdminDashboard() {
                                       <div className="flex items-center gap-4">
                                         <div className="relative shrink-0 w-12 h-12">
                                           {/* Base Avatar Container */}
-                                          <div className="w-full h-full rounded-2xl bg-white border-2 border-white shadow-md flex items-center justify-center text-xl overflow-hidden relative">
+                                          <div className="w-full h-full rounded-full bg-white border-2 border-white shadow-md flex items-center justify-center text-xl overflow-hidden relative">
                                             {u.avatar_url?.startsWith('http') || u.avatar_url?.startsWith('/') ? (
                                               <img src={u.avatar_url} className="w-full h-full object-cover" alt="" />
                                             ) : (
@@ -360,8 +360,15 @@ export default function AdminDashboard() {
                                           
                                           {/* Ornamental Frame Overlay */}
                                           {(() => {
-                                            const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === (u as any).equipped_frame)
-                                                           || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === (u as any).equipped_frame);
+                                            const equippedFrame = (u as any).equipped_frame;
+                                            if (!equippedFrame) return null;
+
+                                            if (equippedFrame.startsWith('http')) {
+                                              return <img src={equippedFrame} className="frame-image-overlay" alt="" />;
+                                            }
+
+                                            const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === equippedFrame)
+                                                           || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === equippedFrame);
                                             return frameItem ? <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div> : null;
                                           })()}
 

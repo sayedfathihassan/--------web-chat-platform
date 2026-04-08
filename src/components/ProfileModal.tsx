@@ -239,7 +239,7 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
             <div className="flex items-center gap-5 bg-white p-4 rounded-2xl shadow-sm border border-[#84a9d1]/20">
               <div className="relative shrink-0 w-24 h-24">
                 {/* Base Avatar Container */}
-                <div className="w-full h-full rounded-2xl border-4 border-[#84a9d1]/30 bg-[#f0f4f8] shadow-lg flex items-center justify-center text-5xl overflow-hidden bg-white relative">
+                <div className="w-full h-full rounded-full border-4 border-[#84a9d1]/30 bg-[#f0f4f8] shadow-lg flex items-center justify-center text-5xl overflow-hidden bg-white relative">
                   {profile.avatar_url?.startsWith('http') || profile.avatar_url?.startsWith('/') ? (
                     <img src={profile.avatar_url} className="w-full h-full object-cover" alt="" />
                   ) : (
@@ -249,12 +249,19 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
 
                 {/* Ornamental Frame Overlay */}
                 {(() => {
-                  const frameItem = shopItems.find(s => s.id === profile.equipped_frame)
-                                 || shopItems.find(s => s.category === 'frame' && s.preview_css === profile.equipped_frame);
+                  const equippedFrame = profile.equipped_frame;
+                  if (!equippedFrame) return null;
+
+                  if (equippedFrame.startsWith('http')) {
+                    return <img src={equippedFrame} className="frame-image-overlay" alt="" />;
+                  }
+
+                  const frameItem = shopItems.find(s => s.id === equippedFrame)
+                                 || shopItems.find(s => s.category === 'frame' && s.preview_css === equippedFrame);
                   return frameItem ? <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div> : null;
                 })()}
 
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white z-20"></div>
+                <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-white z-20"></div>
               </div>
               <div className="flex-1 min-w-0">
                 {isEditing ? (

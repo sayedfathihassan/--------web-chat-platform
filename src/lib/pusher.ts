@@ -51,15 +51,28 @@ export const pusher = new Pusher(pusherKey, {
           }
         }
       };
-      const body = new URLSearchParams({ 
-        socket_id: socketId,
-        identity: _currentUser?.id || 'unknown',
-        user_info: JSON.stringify({
-          displayName: _currentUser?.displayName || 'مستخدم',
-          username: _currentUser?.username || 'unknown',
-        })
+      
+      const getSession = async () => {
+        try {
+          const { data } = await (await import('./supabase')).supabase.auth.getSession();
+          return data.session?.access_token || '';
+        } catch {
+          return '';
+        }
+      };
+
+      getSession().then(token => {
+        const body = new URLSearchParams({ 
+          socket_id: socketId,
+          identity: _currentUser?.id || 'unknown',
+          access_token: token,
+          user_info: JSON.stringify({
+            displayName: _currentUser?.displayName || 'مستخدم',
+            username: _currentUser?.username || 'unknown',
+          })
+        });
+        xhr.send(body.toString());
       });
-      xhr.send(body.toString());
     }
   },
   channelAuthorization: {
@@ -80,19 +93,32 @@ export const pusher = new Pusher(pusherKey, {
           }
         }
       };
-      const body = new URLSearchParams({
-        socket_id: socketId,
-        channel_name: channelName,
-        identity: _currentUser?.id || 'unknown',
-        user_info: JSON.stringify({
-          displayName: _currentUser?.displayName || 'مستخدم',
-          username: _currentUser?.username || 'unknown',
-          role: _currentUser?.role || 'guest',
-          short_id: _currentUser?.short_id,
-          avatar_url: _currentUser?.avatar_url,
-        })
+      
+      const getSession = async () => {
+        try {
+          const { data } = await (await import('./supabase')).supabase.auth.getSession();
+          return data.session?.access_token || '';
+        } catch {
+          return '';
+        }
+      };
+
+      getSession().then(token => {
+        const body = new URLSearchParams({
+          socket_id: socketId,
+          channel_name: channelName,
+          identity: _currentUser?.id || 'unknown',
+          access_token: token,
+          user_info: JSON.stringify({
+            displayName: _currentUser?.displayName || 'مستخدم',
+            username: _currentUser?.username || 'unknown',
+            role: _currentUser?.role || 'guest',
+            short_id: _currentUser?.short_id,
+            avatar_url: _currentUser?.avatar_url,
+          })
+        });
+        xhr.send(body.toString());
       });
-      xhr.send(body.toString());
     }
   },
 });

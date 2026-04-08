@@ -48,49 +48,26 @@ export default function SendGiftModal({ initialTargetUserId, initialTargetDispla
     setFlyAnim(true);
 
     try {
-      // 1. Deduct points from sender (avoid schema cache issue - use rpc if available)
-      const { error: senderErr } = await supabase
-        .from('profiles')
-        .update({ points: user.points - selectedGift.points_cost })
-        .eq('id', user.id);
-
-      if (senderErr) throw senderErr;
-
-      // 2. Add points to receiver 
-      const { data: receiverData, error: recErr } = await supabase
-        .from('profiles')
-        .select('points')
-        .eq('id', targetUserId)
-        .single();
-
-      if (!recErr && receiverData) {
-        const awardAmount = Math.floor(selectedGift.points_cost * 0.1);
-        await supabase.from('profiles').update({
-          points: (receiverData.points || 0) + awardAmount,
-        }).eq('id', targetUserId);
-      }
-
-      // 3. Try to increment gift stats (non-blocking — columns may not exist yet)
-      supabase.rpc('increment_gift_stats', {
+      // 1. Call secure RPC for the transaction
+      const { data: result, error: rpcErr } = await supabase.rpc('handle_gift_transaction', {
         p_sender_id: user.id,
-        p_receiver_id: targetUserId
-      }).then(({ error }) => {
-        if (error) {
-          // Fallback: direct update if RPC not available
-          supabase.from('profiles').update({
-            total_gifts_sent: (user.total_gifts_sent || 0) + 1,
-          }).eq('id', user.id).then(() => {});
-        }
+        p_receiver_id: targetUserId,
+        p_gift_id: selectedGift.id,
+        p_points_cost: selectedGift.points_cost,
+        p_points_award: Math.floor(selectedGift.points_cost * 0.1)
       });
 
-      // 4. Update local user state immediately
+      if (rpcErr) throw rpcErr;
+      if (result && !result.success) throw new Error(result.message);
+
+      // 2. Update local user state with new balance from server
       setUser({
         ...user,
-        points: user.points - selectedGift.points_cost,
+        points: result.new_points,
         total_gifts_sent: (user.total_gifts_sent || 0) + 1,
       });
 
-      // 4. Broadcast gift event to the room (everyone sees it)
+      // 3. Broadcast gift event to the room (everyone sees it)
       if (channel) {
         channel.send({
           type: 'broadcast',
@@ -107,18 +84,7 @@ export default function SendGiftModal({ initialTargetUserId, initialTargetDispla
         });
       }
 
-      // 5. Log to gift_logs (non-blocking, best effort)
-      supabase.from('gift_logs').insert({
-        sender_id: user.id,
-        receiver_id: targetUserId,
-        gift_id: selectedGift.id,
-        points_cost: selectedGift.points_cost,
-        points_award: selectedGift.points_award
-      }).then(({ error }) => {
-        if (error) console.warn('Gift log failed (non-critical):', error.message);
-      });
-
-      // 6. Close after animation
+      // 4. Close after animation
       setTimeout(() => {
         setSending(false);
         onClose();

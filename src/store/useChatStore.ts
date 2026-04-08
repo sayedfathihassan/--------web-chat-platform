@@ -406,19 +406,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
            });
         }
       })
-      .on('broadcast', { event: 'admin-action' }, ({ payload }) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'room_actions', filter: `room_id=eq.${roomId}` }, payload => {
+        const action = payload.new;
         const me = get().user;
         if (!me) return;
 
-        if (payload.targetId === me.id) {
-          if (payload.action === 'kick' || payload.action === 'ban') {
-            alert(`لقد تم ${payload.action === 'kick' ? 'طردك' : 'حذرك'} من هذه الغرفة.`);
+        if (action.target_id === me.id) {
+          if (action.action === 'kick' || action.action === 'ban') {
+            alert(`لقد تم ${action.action === 'kick' ? 'طردك' : 'حذرك'} من هذه الغرفة.`);
             const myRoomId = get().currentRoom?.id;
-            if (myRoomId) get().logRoomAction(myRoomId, payload.action as any);
+            if (myRoomId) get().logRoomAction(myRoomId, action.action as any);
             get().disconnectChat();
             set({ currentRoom: null });
           }
-          if (payload.action === 'mute') {
+          if (action.action === 'mute') {
             set({ isMuted: true });
             get().addMessage({
               id: 'mute-' + Math.random(),
@@ -434,7 +435,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           }
         }
 
-        if (payload.action === 'clear' && payload.targetId === 'all') {
+        if (action.action === 'clear' && action.target_id === 'all') {
           set({ messages: [] });
         }
       })
@@ -612,15 +613,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
 
-  processAdminAction: (action, targetId) => {
-    const { channel, currentRoom } = get();
-    if (channel) {
-      channel.send({
-        type: 'broadcast',
-        event: 'admin-action',
-        payload: { action, targetId }
+  processAdminAction: async (action, targetId) => {
+    const { user, currentRoom } = get();
+    if (user && currentRoom) {
+      await supabase.from('room_actions').insert({
+        room_id: currentRoom.id,
+        admin_id: user.id,
+        target_id: targetId,
+        action,
+        metadata: { username: user.username, displayName: user.display_name }
       });
-      if (currentRoom) get().logRoomAction(currentRoom.id, action as any, { targetId });
+      // logRoomAction is now handled via DB insert, but we can keep it for historical logs
+      get().logRoomAction(currentRoom.id, action as any, { targetId });
     }
   },
 

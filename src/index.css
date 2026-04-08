@@ -328,51 +328,72 @@
   }
 
   /* ════════════════════════════════════════
-     PREMIUM ORNAMENTAL FRAMES (Updated for Dark)
+     PREMIUM ORNAMENTAL FRAMES (V3 - CIRCULAR ORNATE)
   ════════════════════════════════════════ */
-  .frame-king-premium {
-    outline: 3px double #ffd700;
-    box-shadow: 0 0 15px rgba(255,215,0,0.6), inset 0 0 10px rgba(255,215,0,0.3);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(184,134,11,0.15));
-    padding: 3px;
+  
+  /* Shared Base for all frames */
+  .frame-premium-base {
+    border-radius: 9999px !important;
+    position: relative;
+    z-index: 10;
   }
+
+  .frame-king-premium {
+    border-radius: 9999px !important;
+    box-shadow: 
+      0 0 0 2px #d4af37, 
+      0 0 0 4px #0d0d1a,
+      0 0 15px #f59e0b, 
+      inset 0 0 10px rgba(255,215,0,0.5);
+    background: linear-gradient(135deg, #f59e0b, #d4af37, #f59e0b);
+    padding: 3px;
+    animation: animate-pulse-glow 3s infinite;
+  }
+  
   .frame-fire-premium {
-    outline: 3px double #ff4500;
-    box-shadow: 0 0 20px rgba(255,69,0,0.8), inset 0 0 12px rgba(255,69,0,0.4);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(255,69,0,0.2), rgba(139,0,0,0.2));
+    border-radius: 9999px !important;
+    box-shadow: 
+      0 0 0 2px #ff4500, 
+      0 0 0 4px #0d0d1a,
+      0 0 20px #ef4444, 
+      inset 0 0 12px rgba(255,69,0,0.6);
+    background: linear-gradient(135deg, #f97316, #ef4444, #f97316);
     padding: 3px;
     animation: flame-glow 1.5s infinite alternate;
   }
+
   .frame-diamond-pro {
-    outline: 3px double #00ffff;
-    box-shadow: 0 0 25px rgba(0,255,255,0.7), inset 0 0 15px rgba(0,255,255,0.4);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(0,255,255,0.15), rgba(0,139,139,0.15));
+    border-radius: 9999px !important;
+    box-shadow: 
+      0 0 0 2px #00ffff, 
+      0 0 0 4px #0d0d1a,
+      0 0 25px rgba(0,255,255,0.8), 
+      inset 0 0 15px rgba(0,255,255,0.4);
+    background: linear-gradient(135deg, #00ffff, #3b82f6, #00ffff);
     padding: 3px;
   }
+
   .frame-ninja-dark {
-    outline: 3px double #8b5cf6;
-    box-shadow: 0 0 15px rgba(139,92,246,0.5), inset 0 0 8px rgba(139,92,246,0.2);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(0,0,0,0.4));
+    border-radius: 9999px !important;
+    box-shadow: 
+      0 0 0 2px #8b5cf6, 
+      0 0 0 4px #0d0d1a,
+      0 0 15px rgba(139,92,246,0.6), 
+      inset 0 0 8px rgba(139,92,246,0.3);
+    background: linear-gradient(135deg, #1e1b4b, #8b5cf6, #1e1b4b);
     padding: 3px;
   }
-  .frame-light-beams {
-    outline: 3px double #fef08a;
-    box-shadow: 0 0 20px rgba(254,240,138,0.7), inset 0 0 10px rgba(254,240,138,0.3);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(254,240,138,0.2), rgba(253,224,71,0.15));
-    padding: 3px;
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-  .frame-warrior-ancient {
-    outline: 3px double #9ca3af;
-    box-shadow: 0 0 15px rgba(156,163,175,0.6), inset 0 0 8px rgba(156,163,175,0.3);
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(156,163,175,0.15), rgba(75,85,99,0.2));
-    padding: 3px;
+
+  /* Support for Image-Based Frames */
+  .frame-image-overlay {
+    position: absolute;
+    inset: -15%; /* Allow frame to be larger than user avatar */
+    width: 130%;
+    height: 130%;
+    pointer-events: none;
+    z-index: 20;
+    object-fit: contain;
+    border-radius: 9999px;
   }
 
   /* ════════════════════════════════════════

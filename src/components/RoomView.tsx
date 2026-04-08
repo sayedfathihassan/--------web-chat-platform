@@ -397,15 +397,19 @@ export default function RoomView() {
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   {/* Avatar with Frame */}
-                  <div className={cn("relative shrink-0 flex items-center justify-center p-1 rounded-lg", (u as any).equipped_frame)}>
-                    <div className="w-9 h-9 rounded-lg border-2 border-white/50 bg-white shadow-sm flex items-center justify-center text-xl overflow-hidden relative z-10">
+                  <div className={cn("relative shrink-0 flex items-center justify-center p-1 rounded-full", !(u as any).equipped_frame?.startsWith('http') && (u as any).equipped_frame)}>
+                    <div className="w-10 h-10 rounded-full border-2 border-white/50 bg-white shadow-sm flex items-center justify-center text-xl overflow-hidden relative z-10">
                       {(u as any).avatar_url?.startsWith('http') ? (
                         <img src={(u as any).avatar_url} className="w-full h-full object-cover" alt="" />
                       ) : (
                         (u as any).avatar_url || '🧔'
                       )}
                     </div>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white z-20"></div>
+                    {/* Image-based Frame Overlay */}
+                    {(u as any).equipped_frame?.startsWith('http') && (
+                      <img src={(u as any).equipped_frame} className="frame-image-overlay" alt="" />
+                    )}
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white z-20"></div>
                   </div>
 
                     {/* Name + role */}
@@ -596,6 +600,13 @@ export default function RoomView() {
 
                         {/* Ornamental Frame Overlay */}
                         {(() => {
+                          const equippedFrame = (seatUser as any)?.equipped_frame;
+                          if (!equippedFrame) return null;
+                          
+                          if (equippedFrame.startsWith('http')) {
+                            return <img src={equippedFrame} className="frame-image-overlay" alt="" />;
+                          }
+
                           const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === equippedFrame)
                                          || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === equippedFrame);
                           const frameClass = frameItem?.preview_css;
@@ -658,24 +669,32 @@ export default function RoomView() {
                       {/* Avatar with Independent Frame Layer */}
                       {(() => {
                          const msgUser = onlineUsers.find(u => u.id === msg.userId) || (msg.userId === user?.id ? user : null) as any;
-                         const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === msgUser?.equipped_frame) 
-                                        || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === (msgUser as any)?.equipped_frame); // Fallback to CSS name match
-                         const frameClass = frameItem?.preview_css;
+                         const equippedFrame = msgUser?.equipped_frame;
                          
                          return (
-                           <div className="relative shrink-0 self-end w-9 h-9">
+                           <div className="relative shrink-0 self-end w-10 h-10">
                              {/* Base Avatar */}
-                             <div className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center text-xl" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                             <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center text-xl" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
                                {(msgUser as any)?.avatar_url?.startsWith('http') || (msgUser as any)?.avatar_url?.startsWith('/') ? (
                                  <img src={(msgUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
                                ) : (
                                  (msgUser as any)?.avatar_url || '🧔'
                                )}
                              </div>
-                             {/* Independent Frame Overlay */}
-                             {frameClass && (
-                               <div className={cn("absolute inset-0 z-10", frameClass)}></div>
-                             )}
+                             {/* Frame Overlay */}
+                             {(() => {
+                               if (!equippedFrame) return null;
+                               
+                               if (equippedFrame.startsWith('http')) {
+                                 return <img src={equippedFrame} className="frame-image-overlay" alt="" />;
+                               }
+                               
+                               const frameItem = DEFAULT_SHOP_ITEMS.find(s => s.id === equippedFrame)
+                                              || DEFAULT_SHOP_ITEMS.find(s => s.category === 'frame' && s.preview_css === equippedFrame);
+                               return frameItem?.preview_css ? (
+                                 <div className={cn("absolute inset-0 z-10", frameItem.preview_css)}></div>
+                               ) : null;
+                             })()}
                            </div>
                          );
                       })()}

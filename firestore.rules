@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: username, display_name, points, is_guest, role, etc.
+    //
+    // Collection: rooms
+    // Fields: name, slug, owner_id, is_active, is_private, etc.
+    //
+    // Collection: room_roles
+    // Fields: room_id, user_id, role
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getRole(roomId) {
+      return get(/databases/$(database)/documents/room_roles/$(roomId + '_' + request.auth.uid)).data.role;
+    }
+
+    function hasRole(roomId, roles) {
+      return isAuthenticated() && getRole(roomId) in roles;
+    }
+
+    function isAdmin(roomId) {
+      return hasRole(roomId, ['admin', 'super_admin', 'owner']);
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isPlatformAdmin();
+    }
+
+    function isPlatformAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['global_admin', 'platform_owner'];
+    }
+
+    // Rooms
+    match /rooms/{roomId} {
+      allow read: if true;
+      allow write: if isPlatformAdmin();
+      
+      // Room-specific updates for owners
+      allow update: if isAuthenticated() && (resource.data.owner_id == request.auth.uid || isPlatformAdmin());
+    }
+
+    // Room Roles
+    match /room_roles/{roleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (isAdmin(request.resource.data.room_id) || isPlatformAdmin());
+    }
+
+    // Room Bans
+    match /room_bans/{banId} {
+      allow read: if isAuthenticated() && isAdmin(resource.data.room_id);
+      allow write: if isAuthenticated() && isAdmin(request.resource.data.room_id);
+    }
+
+    // Gifts
+    match /gifts/{giftId} {
+      allow read: if true;
+      allow write: if isPlatformAdmin();
+    }
+
+    // Exclusive Items
+    match /exclusive_items/{itemId} {
+      allow read: if true;
+      allow write: if isPlatformAdmin();
+    }
+
+    // Gift Logs
+    match /gift_log/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+    }
+
+    // Redeem Logs
+    match /redeem_log/{logId} {
+      allow read: if isAuthenticated() && (resource.data.user_id == request.auth.uid || isPlatformAdmin());
+      allow create: if isAuthenticated();
+    }
+
+    // Points Logs
+    match /points_log/{logId} {
+      allow read: if isAuthenticated() && (resource.data.user_id == request.auth.uid || isPlatformAdmin());
+      allow create: if false; // Only via server/admin
+    }
+
+    // Gateway Queue
+    match /gateway_queue/{reqId} {
+      allow read: if isAuthenticated() && (isAdmin(resource.data.room_id) || resource.data.user_id == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && isAdmin(resource.data.room_id);
+    }
+  }
+}

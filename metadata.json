@@ -1,0 +1,5 @@
+{
+  "name": "منصة الشات الفوري - Web Chat Platform",
+  "description": "A real-time Arabic chat platform with rooms, voice, video, and gift system.",
+  "requestFramePermissions": ["camera", "microphone"]
+}

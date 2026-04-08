@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Almarai", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-brand-blue: #1e3a5f;
+  --color-brand-light-blue: #84a9d1;
+  --color-brand-bg: #c0d5e8;
+  --color-brand-surface: #f0f0f0;
+  
+  --shadow-retro: 2px 2px 0px 0px rgba(0, 0, 0, 0.1);
+  --shadow-retro-lg: 4px 4px 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-brand-bg text-brand-blue;
+  }
+}
+
+@layer components {
+  .retro-border {
+    @apply border border-brand-light-blue shadow-retro;
+  }
+  
+  .retro-button {
+    @apply bg-brand-surface border border-brand-light-blue px-3 py-1.5 rounded text-xs font-bold text-brand-blue hover:bg-white transition-all active:translate-y-[1px] active:shadow-none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+
+  /* SHOP FRAMES */
+  .frame-king {
+    border: 3px solid #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.5);
+    z-index: 10;
+  }
+  .frame-king::after {
+    content: "👑";
+    position: absolute;
+    top: -20px;
+    right: -12px;
+    font-size: 24px;
+    filter: drop-shadow(0 0 5px gold);
+    z-index: 20;
+  }
+
+  .frame-fire {
+    border: 3px solid #ff4500;
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.8), inset 0 0 10px rgba(255, 140, 0, 0.5);
+    animation: fire-pulse 1s infinite alternate;
+    z-index: 10;
+  }
+  @keyframes fire-pulse {
+    0% { box-shadow: 0 0 10px #ff4500; border-color: #ff4500; }
+    100% { box-shadow: 0 0 20px #ff8c00; border-color: #ff8c00; }
+  }
+  .frame-fire::after {
+    content: "🔥";
+    position: absolute;
+    bottom: -12px;
+    right: -12px;
+    font-size: 22px;
+    filter: drop-shadow(0 0 5px red);
+    z-index: 20;
+  }
+
+  .frame-diamond {
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8), inset 0 0 10px rgba(0, 255, 255, 0.5);
+    z-index: 10;
+  }
+  .frame-diamond::after {
+    content: "💎";
+    position: absolute;
+    bottom: -12px;
+    left: -12px;
+    font-size: 22px;
+    filter: drop-shadow(0 0 5px cyan);
+    z-index: 20;
+  }
+
+  .frame-ninja {
+    border: 3px solid #000;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(50, 50, 50, 0.5);
+    z-index: 10;
+  }
+  .frame-ninja::after {
+    content: "🥷";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    font-size: 24px;
+    z-index: 20;
+  }
+
+  .frame-nature {
+    border: 3px solid #22c55e;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.8), inset 0 0 10px rgba(34, 197, 94, 0.5);
+    z-index: 10;
+  }
+  .frame-nature::after {
+    content: "🌿";
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 22px;
+    z-index: 20;
+  }
+}

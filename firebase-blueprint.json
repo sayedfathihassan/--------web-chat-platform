@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "description": "Unique login name" },
+        "display_name": { "type": "string", "description": "Shown in room" },
+        "avatar_url": { "type": "string", "description": "Profile picture URL" },
+        "bio": { "type": "string", "description": "Short bio" },
+        "points": { "type": "integer", "description": "Total accumulated points" },
+        "total_gifts_received": { "type": "integer", "description": "Lifetime count" },
+        "total_gifts_sent": { "type": "integer", "description": "Lifetime count" },
+        "is_guest": { "type": "boolean", "description": "True for anonymous users" },
+        "is_platform_banned": { "type": "boolean", "description": "Global ban" },
+        "ban_expires_at": { "type": "string", "format": "date-time" },
+        "last_active_at": { "type": "string", "format": "date-time" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "display_name", "points", "is_guest", "created_at"]
+    },
+    "Room": {
+      "title": "Room",
+      "description": "Chat room configuration",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name" },
+        "slug": { "type": "string", "description": "URL-friendly slug" },
+        "description": { "type": "string", "description": "Short description" },
+        "password_hash": { "type": "string", "description": "Hashed password if private" },
+        "owner_id": { "type": "string", "description": "User ID of the owner" },
+        "max_mic_seats": { "type": "integer", "description": "1-5 seats" },
+        "max_users": { "type": "integer", "description": "Max concurrent users" },
+        "is_active": { "type": "boolean", "description": "Whether room is visible" },
+        "is_private": { "type": "boolean", "description": "Direct link only" },
+        "welcome_message": { "type": "string", "description": "Shown on entry" },
+        "cover_image_url": { "type": "string", "description": "Lobby image" },
+        "requires_gateway_approval": { "type": "boolean", "description": "Login gateway enabled" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "slug", "owner_id", "max_mic_seats", "is_active", "is_private", "created_at"]
+    },
+    "RoomRole": {
+      "title": "RoomRole",
+      "description": "Role assignment per room",
+      "type": "object",
+      "properties": {
+        "room_id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "role": { "type": "string", "enum": ["owner", "super_admin", "admin", "friend", "member", "guest"] },
+        "assigned_by": { "type": "string" },
+        "assigned_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["room_id", "user_id", "role", "assigned_at"]
+    },
+    "RoomBan": {
+      "title": "RoomBan",
+      "description": "Room-level ban",
+      "type": "object",
+      "properties": {
+        "room_id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "ip_address": { "type": "string" },
+        "device_fingerprint": { "type": "string" },
+        "reason": { "type": "string" },
+        "banned_by": { "type": "string" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["room_id", "created_at"]
+    },
+    "MicSeat": {
+      "title": "MicSeat",
+      "description": "Mic seat assignment",
+      "type": "object",
+      "properties": {
+        "room_id": { "type": "string" },
+        "seat_number": { "type": "integer" },
+        "user_id": { "type": "string" },
+        "livekit_track_sid": { "type": "string" },
+        "is_muted": { "type": "boolean" },
+        "is_locked": { "type": "boolean" },
+        "taken_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["room_id", "seat_number"]
+    },
+    "Gift": {
+      "title": "Gift",
+      "description": "Gift catalog item",
+      "type": "object",
+      "properties": {
+        "name_ar": { "type": "string" },
+        "name_en": { "type": "string" },
+        "image_url": { "type": "string" },
+        "animation_url": { "type": "string" },
+        "points_cost": { "type": "integer" },
+        "points_award": { "type": "integer" },
+        "effect_type": { "type": "string", "enum": ["corner", "overlay", "fullscreen", "rain", "global_announce"] },
+        "is_active": { "type": "boolean" },
+        "sort_order": { "type": "integer" }
+      },
+      "required": ["name_ar", "name_en", "image_url", "points_cost", "points_award", "effect_type", "is_active"]
+    },
+    "GiftLog": {
+      "title": "GiftLog",
+      "description": "Gift transaction history",
+      "type": "object",
+      "properties": {
+        "room_id": { "type": "string" },
+        "sender_id": { "type": "string" },
+        "receiver_id": { "type": "string" },
+        "gift_id": { "type": "string" },
+        "is_to_all": { "type": "boolean" },
+        "points_deducted": { "type": "integer" },
+        "points_awarded": { "type": "integer" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sender_id", "gift_id", "points_deducted", "points_awarded", "created_at"]
+    },
+    "PointsLog": {
+      "title": "PointsLog",
+      "description": "Points audit trail",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "delta": { "type": "integer" },
+        "reason": { "type": "string" },
+        "balance_after": { "type": "integer" },
+        "room_id": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["user_id", "delta", "reason", "balance_after", "created_at"]
+    },
+    "GatewayQueue": {
+      "title": "GatewayQueue",
+      "description": "Users waiting in gateway",
+      "type": "object",
+      "properties": {
+        "room_id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "username": { "type": "string" },
+        "country": { "type": "string" },
+        "ip_address": { "type": "string" },
+        "device_fingerprint": { "type": "string" },
+        "status": { "type": "string", "enum": ["waiting", "approved", "rejected", "ip_banned", "device_banned"] },
+        "reviewed_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["room_id", "username", "status", "created_at"]
+    },
+    "ModeratorReport": {
+      "title": "ModeratorReport",
+      "description": "Moderator action log",
+      "type": "object",
+      "properties": {
+        "room_id": { "type": "string" },
+        "actor_id": { "type": "string" },
+        "target_id": { "type": "string" },
+        "action": { "type": "string" },
+        "reason": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["action", "created_at"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "Global users collection" },
+    "rooms": { "schema": "Room", "description": "Global rooms collection" },
+    "room_roles": { "schema": "RoomRole", "description": "Role assignments per room" },
+    "room_bans": { "schema": "RoomBan", "description": "Room-level bans" },
+    "mic_seats": { "schema": "MicSeat", "description": "Mic seat assignments" },
+    "gifts": { "schema": "Gift", "description": "Gift catalog" },
+    "gift_log": { "schema": "GiftLog", "description": "Gift history" },
+    "points_log": { "schema": "PointsLog", "description": "Points history" },
+    "gateway_queue": { "schema": "GatewayQueue", "description": "Gateway queue" },
+    "moderator_reports": { "schema": "ModeratorReport", "description": "Mod action log" }
+  }
+}

@@ -47,7 +47,7 @@ export default function PrivateChatModal({ targetUserId, targetDisplayName, onCl
 
   return (
     <motion.div 
-      drag
+      drag={window.innerWidth > 768}
       dragMomentum={false}
       dragElastic={0.1}
       initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -55,8 +55,10 @@ export default function PrivateChatModal({ targetUserId, targetDisplayName, onCl
         opacity: 1, 
         scale: 1, 
         y: 0,
-        height: isMinimized ? '40px' : '350px',
-        width: isMinimized ? '180px' : '280px',
+        height: isMinimized ? '45px' : (window.innerWidth < 768 ? '100%' : '380px'),
+        width: isMinimized ? (window.innerWidth < 768 ? '120px' : '180px') : (window.innerWidth < 768 ? '100%' : '320px'),
+        bottom: (window.innerWidth < 768 && !isMinimized) ? '0px' : '80px',
+        left: (window.innerWidth < 768 && !isMinimized) ? '0px' : '20px',
         boxShadow: isUnread 
           ? ['0 0 0px rgba(249,115,22,0)', '0 0 15px rgba(249,115,22,0.6)', '0 0 0px rgba(249,115,22,0)'] 
           : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
@@ -67,12 +69,12 @@ export default function PrivateChatModal({ targetUserId, targetDisplayName, onCl
         width: { type: 'spring', damping: 25, stiffness: 300 }
       }}
       className={cn(
-        "fixed z-[450] flex flex-col font-sans rtl rounded-2xl border-2 overflow-hidden",
+        "fixed z-[450] flex flex-col font-sans rtl overflow-hidden",
+        window.innerWidth < 768 && !isMinimized ? "rounded-none" : "rounded-2xl border-2",
         isUnread ? "border-orange-500 bg-orange-50/5" : "border-[#84a9d1] bg-white"
       )} 
       dir="rtl"
       onMouseDown={handleFocus}
-      style={{ bottom: '80px', left: '20px' }}
     >
       {/* Header / Drag Handle */}
       <div 

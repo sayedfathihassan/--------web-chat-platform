@@ -146,52 +146,52 @@ export default function RoomControlPanel({ onClose }: RoomControlPanelProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[400] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 font-sans" dir="rtl">
+    <div className="fixed inset-0 z-[400] bg-black/60 backdrop-blur-md flex items-center justify-center p-0 md:p-4 font-sans" dir="rtl">
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="w-full max-w-4xl bg-[#f0f4f8] rounded-[40px] border-4 border-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col h-[650px]"
+        className="w-full max-w-4xl bg-[#f0f4f8] rounded-none md:rounded-[40px] border-none md:border-4 border-white shadow-2xl overflow-hidden flex flex-col h-full md:h-[650px]"
       >
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4e7c] p-8 text-white relative">
+        {/* Header Section - Responsive */}
+        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4e7c] p-4 md:p-8 text-white relative shrink-0">
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-10">
             <div className="absolute top-[-50%] right-[-10%] w-[300px] h-[300px] bg-white rounded-full blur-[80px]"></div>
           </div>
           
           <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-5">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/30 shadow-2xl">
-                <Crown size={32} className="text-yellow-400" />
+            <div className="flex items-center gap-3 md:gap-5">
+              <div className="w-10 h-10 md:w-16 md:h-16 bg-white/20 backdrop-blur-xl rounded-xl md:rounded-2xl flex items-center justify-center border border-white/30 shadow-2xl">
+                <Crown size={20} className="text-yellow-400 md:size-[32px]" />
               </div>
               <div>
-                <h2 className="text-2xl font-black tracking-tight leading-tight">مركز تحكم المالك</h2>
-                <p className="text-white/70 font-bold text-sm">إدارة الغرفة: <span className="text-yellow-400">{currentRoom?.name}</span></p>
+                <h2 className="text-sm md:text-2xl font-black tracking-tight">مركز تحكم المالك</h2>
+                <p className="text-white/70 font-bold text-[10px] md:text-sm">إدارة الغرفة: <span className="text-yellow-400">{currentRoom?.name}</span></p>
               </div>
             </div>
-            <button onClick={onClose} className="w-12 h-12 bg-white/10 hover:bg-red-500 rounded-2xl flex items-center justify-center transition-all border border-white/20 group">
-              <X size={24} className="group-hover:rotate-90 transition-transform" />
+            <button onClick={onClose} className="w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-red-500 rounded-xl md:rounded-2xl flex items-center justify-center transition-all border border-white/20">
+              <X size={20} />
             </button>
           </div>
 
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-2 md:gap-4 mt-6 md:mt-8 overflow-x-auto no-scrollbar pb-1">
              <button 
                onClick={() => setActiveTab('settings')}
-               className={cn("px-6 py-2.5 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-sm", activeTab === 'settings' ? "bg-white text-[#1e3a5f] scale-105" : "bg-white/10 hover:bg-white/20 text-white")}
+               className={cn("whitespace-nowrap px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-[10px] md:text-sm transition-all flex items-center gap-2 shadow-sm", activeTab === 'settings' ? "bg-white text-[#1e3a5f] scale-105" : "bg-white/10 text-white")}
              >
-               <Settings size={18} /> إعدادات الغرفة
+               <Settings size={14} className="md:size-[18px]" /> إعدادات الغرفة
              </button>
              <button 
                onClick={() => setActiveTab('mods')}
-               className={cn("px-6 py-2.5 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-sm", activeTab === 'mods' ? "bg-white text-[#1e3a5f] scale-105" : "bg-white/10 hover:bg-white/20 text-white")}
+               className={cn("whitespace-nowrap px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-[10px] md:text-sm transition-all flex items-center gap-2 shadow-sm", activeTab === 'mods' ? "bg-white text-[#1e3a5f] scale-105" : "bg-white/10 text-white")}
              >
-               <Users size={18} /> قائمة المشرفين
+               <Users size={14} className="md:size-[18px]" /> قائمة المشرفين
              </button>
              <button 
                onClick={() => setActiveTab('bans')}
-               className={cn("px-6 py-2.5 rounded-xl font-black text-sm transition-all flex items-center gap-2 shadow-sm", activeTab === 'bans' ? "bg-white text-[#1e3a5f] scale-105" : "bg-white/10 hover:bg-white/20 text-white")}
+               className={cn("whitespace-nowrap px-4 py-2 md:px-6 md:py-2.5 rounded-xl font-black text-[10px] md:text-sm transition-all flex items-center gap-2 shadow-sm", activeTab === 'bans' ? "bg-white text-[#1e3a5f] scale-105" : "bg-white/10 text-white")}
              >
-               <Ban size={18} /> قائمة الحظر
+               <Ban size={14} className="md:size-[18px]" /> قائمة الحظر
              </button>
           </div>
         </div>

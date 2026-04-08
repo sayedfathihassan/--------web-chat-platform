@@ -170,6 +170,19 @@ export default function AdminDashboard() {
     fetchData();
   };
 
+  const handleSaveSettings = async () => {
+    if (!siteSettingsForm) return;
+    setSaving(true);
+    const { error } = await supabase.from('site_settings').update(siteSettingsForm).eq('id', siteSettingsForm.id);
+    if (!error) {
+      showToast('تم حفظ التغييرات بنجاح ✅');
+      useChatStore.getState().setSiteSettings(siteSettingsForm);
+    } else {
+      showToast('فشل الحفظ: ' + error.message, 'error');
+    }
+    setSaving(false);
+  };
+
   const filteredUsers = users.filter(u =>
     u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.username?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -187,29 +200,26 @@ export default function AdminDashboard() {
   ] as const;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 font-sans text-right" dir="rtl">
+    <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-0 md:p-10 font-sans text-right" dir="rtl">
       <motion.div
         initial={{ opacity: 0, scale: 0.98, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-7xl h-full max-h-[900px] bg-white/95 border border-white/20 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+        className="w-full max-w-7xl h-full md:h-auto md:max-h-[900px] bg-white border border-white/20 rounded-none md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
       >
-        {/* Header - Premium Navigation */}
-        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4e7c] px-10 py-6 flex items-center justify-between text-white shrink-0 shadow-lg relative z-10">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
-              <Shield size={28} className="text-white" />
+        {/* Header - Compact for Mobile */}
+        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4e7c] px-4 py-3 md:px-10 md:py-6 flex items-center justify-between text-white shrink-0 shadow-lg relative z-10">
+          <div className="flex items-center gap-3 md:gap-5">
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
+              <Shield size={20} className="text-white md:size-[28px]" />
             </div>
             <div>
-              <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                لوحة التحكم الإدارية
-                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-widest font-bold">نسخة الخبير</span>
-              </h2>
-              <p className="text-xs font-bold text-white/50">إدارة كافة جوانب منصة {siteSettings?.site_name || 'الشات'}</p>
+              <h2 className="text-sm md:text-2xl font-black tracking-tight">لوحة التحكم</h2>
+              <p className="hidden md:block text-xs font-bold text-white/50">إدارة كافة جوانب المنصة</p>
             </div>
           </div>
           <button onClick={() => setShowAdminDashboard(false)}
-            className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all active:scale-90 hover:rotate-90">
-            <X size={24} />
+            className="w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 rounded-xl md:rounded-2xl flex items-center justify-center transition-all">
+            <X size={20} />
           </button>
         </div>
 
@@ -226,55 +236,36 @@ export default function AdminDashboard() {
           )}
         </AnimatePresence>
 
-        <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar - Modern Design */}
-          <div className="w-64 bg-[#f8fbff] border-l border-[#dee8f3] p-6 flex flex-col gap-3 shrink-0">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {/* Sidebar - Horizontal scroll on mobile */}
+          <div className="w-full md:w-64 bg-[#f8fbff] border-b md:border-b-0 md:border-l border-[#dee8f3] p-2 md:p-6 flex flex-row md:flex-col gap-2 md:gap-3 shrink-0 overflow-x-auto no-scrollbar">
             {sidebarTabs.map((tab) => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id as Tab)}
                 className={cn(
-                  "w-full px-5 py-4 flex items-center gap-4 text-sm font-black transition-all rounded-2xl border-2",
+                  "whitespace-nowrap px-4 py-2.5 md:px-5 md:py-4 flex items-center gap-2 md:gap-4 text-[10px] md:text-sm font-black transition-all rounded-xl md:rounded-2xl border md:border-2 shadow-sm",
                   activeTab === tab.id
-                    ? "bg-white text-orange-500 shadow-xl border-orange-100"
-                    : "text-[#84a9d1] border-transparent hover:bg-white/80 hover:text-[#1e3a5f]"
+                    ? "bg-white text-orange-500 border-orange-100"
+                    : "text-[#84a9d1] border-transparent hover:text-[#1e3a5f]"
                 )}>
-                <span className={cn("transition-colors", activeTab === tab.id ? "text-orange-500" : "text-[#84a9d1]")}>{tab.icon}</span>
+                <span className={cn("shrink-0", activeTab === tab.id ? "text-orange-500" : "text-[#84a9d1]")}>{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
-            
-            <div className="mt-auto p-5 bg-gradient-to-br from-[#1e3a5f] to-[#2a4e7c] rounded-3xl text-white shadow-lg relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500" />
-               <div className="relative z-10">
-                 <div className="flex items-center gap-2 mb-2">
-                   <Info size={16} className="text-orange-400" />
-                   <span className="text-[10px] font-black uppercase tracking-wider">تنبيه أمان</span>
-                 </div>
-                 <p className="text-[11px] font-bold text-white/80 leading-relaxed">
-                   أنت الآن في وضع التحكم الكامل. أي تغييرات هنا ستنعكس فوراً على جميع المستخدمين.
-                 </p>
-               </div>
-            </div>
           </div>
 
           <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
-            {/* Toolbar - Search and Action Buttons */}
-            <div className="px-10 py-6 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#84a9d1]" size={20} />
-                <input type="text" placeholder="ابحث عن أي شيء..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#f3f7fb] border border-transparent rounded-2xl pr-12 pl-4 py-3.5 text-sm font-black text-[#1e3a5f] focus:outline-none focus:bg-white focus:border-orange-500/50 shadow-inner transition-all" />
+            {/* Toolbar - Stackable for Mobile */}
+            <div className="px-4 py-4 md:px-10 md:py-6 border-b border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between shrink-0 bg-white/50 backdrop-blur-sm sticky top-0 z-10 gap-3">
+              <div className="relative flex-1 max-w-none md:max-w-sm">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#84a9d1]" size={16} />
+                <input type="text" placeholder="بحث..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#f3f7fb] border border-transparent rounded-xl md:rounded-2xl pr-10 pl-4 py-2.5 md:py-3.5 text-xs md:text-sm font-black text-[#1e3a5f] focus:outline-none focus:bg-white transition-all" />
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-2">
                 {activeTab === 'rooms' && (
                   <button onClick={() => { setRoomForm(defaultRoom); setEditingRoom(null); setShowCreateRoom(true); }}
-                    className="flex items-center gap-2 px-6 py-3.5 bg-orange-500 text-white rounded-2xl text-sm font-black hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 active:scale-95">
-                    <Plus size={20} /> إنشاء غرفة جديدة
-                  </button>
-                )}
-                {activeTab === 'gifts' && (
-                  <button onClick={() => { setGiftForm(defaultGift); setEditingGift(null); setShowCreateGift(true); }}
-                    className="flex items-center gap-2 px-6 py-3.5 bg-orange-500 text-white rounded-2xl text-sm font-black hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 active:scale-95">
-                    <Plus size={20} /> إضافة هدية جديدة
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3.5 bg-orange-500 text-white rounded-xl md:rounded-2xl text-[10px] md:text-sm font-black shadow-lg">
+                    <Plus size={16} /> إنشاء غرفة
                   </button>
                 )}
               </div>
@@ -471,8 +462,18 @@ export default function AdminDashboard() {
                          <button 
                            onClick={() => {
                               if (!broadcastText.trim()) return;
-                              useChatStore.getState().addSystemMessageToAll(broadcastText);
-                              showToast('تم إرسال البث للجميع ✅');
+                              useChatStore.getState().addMessage({
+                                id: Math.random().toString(),
+                                userId: 'system',
+                                username: 'System',
+                                displayName: 'إدارة الموقع',
+                                role: 'admin',
+                                roleColor: '#f97316',
+                                text: broadcastText,
+                                timestamp: new Date().toISOString(),
+                                type: 'system'
+                              });
+                              showToast('تم إرسال البث بنجاح ✅');
                               setBroadcastText('');
                            }}
                            className="w-full py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-orange-500/20 active:scale-95 transition-all">

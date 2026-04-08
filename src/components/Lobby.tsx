@@ -165,59 +165,47 @@ export default function Lobby() {
 
       <HallOfFame />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
         {rooms.map((room, index) => (
           <motion.div
             key={room.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+            transition={{ delay: index * 0.05 }}
             onClick={() => handleJoinRoom(room)}
-            className="group bg-white border border-brand-light-blue rounded-3xl overflow-hidden hover:border-orange-500 transition-all hover:shadow-2xl hover:shadow-brand-light-blue/20 relative flex flex-col cursor-pointer active:scale-[0.99]"
+            className="group bg-white border border-[#84a9d1]/20 rounded-2xl md:rounded-3xl overflow-hidden hover:border-orange-500 transition-all hover:shadow-xl relative flex flex-col cursor-pointer active:scale-[0.97]"
           >
-            <div className="aspect-video relative overflow-hidden bg-brand-surface">
-              {room.cover_image_url ? (
-                <img 
-                  src={room.cover_image_url} 
-                  alt={room.name} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-brand-light-blue/20">
-                  <MessageSquare size={64} strokeWidth={1.5} />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              {room.is_private && (
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md p-2.5 rounded-xl shadow-lg border border-brand-light-blue/20">
-                  <Lock size={18} className="text-orange-500" />
+            {/* Compact Header Area - No Large Image */}
+            <div className="p-3 md:p-6 flex flex-col gap-2 relative">
+               {room.is_private && (
+                <div className="absolute top-2 left-2 bg-orange-100 p-1.5 rounded-lg border border-orange-200 shadow-sm z-10">
+                  <Lock size={12} className="text-orange-600" />
                 </div>
               )}
               
-              <div className="absolute bottom-4 right-4 left-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
-                <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-brand-light-blue/20 shadow-lg">
-                  <Users size={14} className="text-brand-blue" />
-                  <span className="text-xs font-black text-brand-blue">12 متصل</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-8 flex-1 flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-black text-brand-blue group-hover:text-orange-500 transition-colors">{room.name}</h3>
-                <div className="w-10 h-10 bg-brand-surface rounded-xl flex items-center justify-center text-brand-blue font-black border border-brand-light-blue/20">
+              <div className="flex items-center gap-2 md:gap-4 mb-1">
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-br from-[#1e3a5f] to-[#2a4e7c] rounded-xl flex items-center justify-center text-white text-xs md:text-lg font-black shrink-0 border border-white/20 shadow-sm">
                   {room.name.charAt(0)}
                 </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm md:text-xl font-black text-[#1e3a5f] group-hover:text-orange-500 transition-colors truncate">{room.name}</h3>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <Users size={10} className="text-[#84a9d1]" />
+                    <span className="text-[9px] md:text-xs font-bold text-[#84a9d1]">12 متصل</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-brand-light-blue font-bold line-clamp-2 mb-8 leading-relaxed h-10">
-                {room.description || 'لا يوجد وصف لهذه الغرفة، انضم إلينا واستكشف الأجواء الرائعة في هذه الغرفة.'}
+
+               <p className="text-[10px] md:text-sm text-[#84a9d1] font-bold line-clamp-1 h-4 md:h-5">
+                {room.description || 'أجواء رائعة بانتظارك...'}
               </p>
+            </div>
+
+            <div className="px-3 pb-3 md:px-6 md:pb-6 mt-auto">
               <button
-                className="w-full bg-brand-surface group-hover:bg-orange-500 text-brand-blue group-hover:text-white font-black py-4 rounded-2xl transition-all border border-brand-light-blue/30 group-hover:border-orange-500 shadow-sm group-hover:shadow-lg group-hover:shadow-orange-500/20"
+                className="w-full bg-[#f8fbff] group-hover:bg-orange-500 text-[#1e3a5f] group-hover:text-white text-[10px] md:text-sm font-black py-2.5 md:py-3.5 rounded-xl transition-all border border-[#84a9d1]/20 group-hover:border-orange-500 shadow-sm"
               >
-                دخول الغرفة الآن
+                دخول
               </button>
             </div>
           </motion.div>

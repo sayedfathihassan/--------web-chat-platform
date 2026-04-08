@@ -47,6 +47,11 @@ const defaultGift = {
   points_award: 5, effect_type: 'corner' as const, is_active: true
 };
 
+const defaultShopItem = {
+  name_ar: '', category: 'frame', image_url: '', points_cost: 100, 
+  duration_days: 30, is_active: true, preview_css: ''
+};
+
 export default function AdminDashboard() {
   const { setShowAdminDashboard, siteSettings } = useChatStore();
   const [activeTab, setActiveTab] = useState<Tab>('users');
@@ -67,7 +72,7 @@ export default function AdminDashboard() {
   const [editingShopItem, setEditingShopItem] = useState<any | null>(null);
   const [roomForm, setRoomForm] = useState(defaultRoom);
   const [giftForm, setGiftForm] = useState(defaultGift);
-  const [shopItemForm, setShopItemForm] = useState({ name_ar: '', category: 'frame', image_url: '', points_cost: 0, preview_css: '' });
+  const [shopItemForm, setShopItemForm] = useState(defaultShopItem);
   const [broadcastText, setBroadcastText] = useState('');
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
@@ -167,6 +172,27 @@ export default function AdminDashboard() {
     setShowCreateGift(false);
     setEditingGift(null);
     setGiftForm(defaultGift);
+    fetchData();
+  };
+
+  const handleSaveShopItem = async () => {
+    if (!shopItemForm.name_ar.trim() || !shopItemForm.image_url.trim()) {
+      showToast('يرجى ملء اسم المنتج والأيقونة', 'error'); return;
+    }
+    setSaving(true);
+    if (editingShopItem) {
+      const { error } = await supabase.from('shop_items').update(shopItemForm).eq('id', editingShopItem.id);
+      if (error) showToast('فشل التحديث: ' + error.message, 'error');
+      else showToast('تم تحديث المنتج ✅');
+    } else {
+      const { error } = await supabase.from('shop_items').insert(shopItemForm);
+      if (error) showToast('فشل الإنشاء: ' + error.message, 'error');
+      else showToast('تم إنشاء المنتج ✅');
+    }
+    setSaving(false);
+    setShowCreateShopItem(false);
+    setEditingShopItem(null);
+    setShopItemForm(defaultShopItem);
     fetchData();
   };
 
@@ -431,6 +457,9 @@ export default function AdminDashboard() {
                                       room.is_active ? "bg-green-50 text-green-600 border border-green-100 hover:bg-green-500 hover:text-white" : "bg-red-50 text-red-600 border border-red-100 hover:bg-red-500 hover:text-white")}>
                                     {room.is_active ? 'نشطة' : 'معطلة'}
                                   </button>
+                                  <button onClick={() => { setRoomForm({...room} as any); setEditingRoom(room); setShowCreateRoom(true); }} className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-blue-500 transition-colors">
+                                     <Edit size={18} className="md:size-[20px]" />
+                                  </button>
                                   <button onClick={() => handleDeleteRoom(room.id)} className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
                                      <Trash2 size={18} className="md:size-[20px]" />
                                   </button>
@@ -447,7 +476,22 @@ export default function AdminDashboard() {
                          <h3 className="text-lg md:text-xl font-black text-[#1e3a5f] mb-2">{TAB_LABELS[activeTab]}</h3>
                          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6 mt-6">
                             {(activeTab === 'gifts' ? gifts : shopItems).map((it: any) => (
-                               <div key={it.id} className="p-3 md:p-6 rounded-2xl md:rounded-3xl bg-slate-50 border border-slate-100 hover:border-orange-200 transition-all">
+                               <div key={it.id} className="p-3 md:p-6 rounded-2xl md:rounded-3xl bg-slate-50 border border-slate-100 hover:border-orange-200 transition-all cursor-pointer group relative"
+                                 onClick={() => {
+                                   if (activeTab === 'gifts') {
+                                     setGiftForm({...it});
+                                     setEditingGift(it);
+                                     setShowCreateGift(true);
+                                   } else if (activeTab === 'shop') {
+                                     setShopItemForm({...it});
+                                     setEditingShopItem(it);
+                                     setShowCreateShopItem(true);
+                                   }
+                                 }}
+                               >
+                                  <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Edit size={14} className="text-blue-500" />
+                                  </div>
                                   <div className="text-3xl md:text-4xl mb-2">
                                     {it.image_url?.startsWith('http') ? <img src={it.image_url} className="w-10 h-10 md:w-16 md:h-16 mx-auto object-contain" alt="" /> : it.image_url}
                                   </div>
@@ -455,6 +499,16 @@ export default function AdminDashboard() {
                                   <div className="text-[9px] md:text-xs font-black text-orange-500">{it.points_cost}💎</div>
                                </div>
                             ))}
+                            <button 
+                              onClick={() => {
+                                if (activeTab === 'gifts') { setGiftForm(defaultGift); setEditingGift(null); setShowCreateGift(true); }
+                                else if (activeTab === 'shop') { setShopItemForm(defaultShopItem); setEditingShopItem(null); setShowCreateShopItem(true); }
+                              }}
+                              className="p-3 md:p-6 rounded-2xl md:rounded-3xl border-2 border-dashed border-slate-200 hover:border-orange-300 hover:bg-orange-50 transition-all flex flex-col items-center justify-center gap-2 text-[#84a9d1] hover:text-orange-500"
+                            >
+                              <Plus size={24} />
+                              <span className="text-[10px] md:text-xs font-black">إضافة جديد</span>
+                            </button>
                          </div>
                       </div>
                     )}
@@ -525,6 +579,173 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* ─── MODALS ─── */}
+        <AnimatePresence>
+          {showCreateRoom && (
+            <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+                <div className="px-8 py-6 bg-[#1e3a5f] text-white flex items-center justify-between">
+                  <h3 className="text-xl font-black">{editingRoom ? 'تعديل الغرفة' : 'إنشاء غرفة جديدة'}</h3>
+                  <button onClick={() => setShowCreateRoom(false)} className="bg-white/10 p-2 rounded-xl"><X size={20} /></button>
+                </div>
+                <div className="flex-1 overflow-auto p-8 space-y-6 custom-scrollbar">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">اسم الغرفة</label>
+                      <input type="text" value={roomForm.name} onChange={e => setRoomForm({...roomForm, name: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">الرابط (Slug)</label>
+                      <input type="text" value={roomForm.slug} onChange={e => setRoomForm({...roomForm, slug: e.target.value})}
+                        placeholder="اتركه فارغاً للتوليد التلقائي"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-[#1e3a5f]">الوصف</label>
+                    <textarea value={roomForm.description} onChange={e => setRoomForm({...roomForm, description: e.target.value})}
+                      className="w-full h-24 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">أقصى عدد مستخدمين</label>
+                      <input type="number" value={roomForm.max_users} onChange={e => setRoomForm({...roomForm, max_users: parseInt(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">أقصى عدد مايكات</label>
+                      <input type="number" value={roomForm.max_mic_seats} onChange={e => setRoomForm({...roomForm, max_mic_seats: parseInt(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-[#1e3a5f]">رابط صورة الغلاف</label>
+                    <input type="text" value={roomForm.cover_image_url} onChange={e => setRoomForm({...roomForm, cover_image_url: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={roomForm.is_private} onChange={e => setRoomForm({...roomForm, is_private: e.target.checked})} />
+                      <span className="text-xs font-black text-[#1e3a5f]">غرفة خاصة (كلمة مرور)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked={roomForm.requires_gateway_approval} onChange={e => setRoomForm({...roomForm, requires_gateway_approval: e.target.checked})} />
+                      <span className="text-xs font-black text-[#1e3a5f]">تفعيل بوابة الدخول</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                  <button onClick={handleSaveRoom} disabled={saving}
+                    className="flex-1 bg-orange-500 text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-all">
+                    {saving ? 'جاري الحفظ...' : 'حفظ البيانات ✓'}
+                  </button>
+                  <button onClick={() => setShowCreateRoom(false)} className="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-black text-sm text-[#84a9d1]">إلغاء</button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {showCreateGift && (
+            <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden flex flex-col shadow-2xl">
+                <div className="px-8 py-6 bg-[#1e3a5f] text-white flex items-center justify-between">
+                  <h3 className="text-xl font-black">{editingGift ? 'تعديل هدية' : 'إضافة هدية جديدة'}</h3>
+                  <button onClick={() => setShowCreateGift(false)} className="bg-white/10 p-2 rounded-xl"><X size={20} /></button>
+                </div>
+                <div className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-[#1e3a5f]">الاسم بالعربية</label>
+                    <input type="text" value={giftForm.name_ar} onChange={e => setGiftForm({...giftForm, name_ar: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-[#1e3a5f]">أيقونة أو رابط الصورة</label>
+                    <input type="text" value={giftForm.image_url} onChange={e => setGiftForm({...giftForm, image_url: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">سعر البيع (نقاط)</label>
+                      <input type="number" value={giftForm.points_cost} onChange={e => setGiftForm({...giftForm, points_cost: parseInt(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">نقاط الربح للمستلم</label>
+                      <input type="number" value={giftForm.points_award} onChange={e => setGiftForm({...giftForm, points_award: parseInt(e.target.value)})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                  </div>
+                </div>
+                <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                  <button onClick={handleSaveGift} disabled={saving}
+                    className="flex-1 bg-orange-500 text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-all">
+                    {saving ? 'جاري الحفظ...' : 'حفظ الهدية ✓'}
+                  </button>
+                  <button onClick={() => setShowCreateGift(false)} className="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-black text-sm text-[#84a9d1]">إلغاء</button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+
+          {showCreateShopItem && (
+            <div className="fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden flex flex-col shadow-2xl">
+                <div className="px-8 py-6 bg-[#1e3a5f] text-white flex items-center justify-between">
+                  <h3 className="text-xl font-black">{editingShopItem ? 'تعديل منتج' : 'إضافة منتج جديد'}</h3>
+                  <button onClick={() => setShowCreateShopItem(false)} className="bg-white/10 p-2 rounded-xl"><X size={20} /></button>
+                </div>
+                <div className="p-8 space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">نوع المنتج</label>
+                      <select value={shopItemForm.category} onChange={e => setShopItemForm({...shopItemForm, category: e.target.value as any})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500">
+                        <option value="frame">إطار بروفايل</option>
+                        <option value="entry_effect">تأثير دخول</option>
+                        <option value="badge">شارة مميزة</option>
+                        <option value="avatar">صورة رمزية VIP</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">الاسم بالعربية</label>
+                      <input type="text" value={shopItemForm.name_ar} onChange={e => setShopItemForm({...shopItemForm, name_ar: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black text-[#1e3a5f]">أيقونة أو رابط الصورة</label>
+                      <input type="text" value={shopItemForm.image_url} onChange={e => setShopItemForm({...shopItemForm, image_url: e.target.value})}
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-[#1e3a5f]">سعر البيع (نقاط)</label>
+                        <input type="number" value={shopItemForm.points_cost} onChange={e => setShopItemForm({...shopItemForm, points_cost: parseInt(e.target.value)})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black text-[#1e3a5f]">مدة الصلاحية (أيام)</label>
+                        <input type="number" value={shopItemForm.duration_days} onChange={e => setShopItemForm({...shopItemForm, duration_days: parseInt(e.target.value)})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-orange-500" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                  <button onClick={handleSaveShopItem} disabled={saving}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-all">
+                    {saving ? 'جاري الحفظ...' : 'حفظ المنتج ✓'}
+                  </button>
+                  <button onClick={() => setShowCreateShopItem(false)} className="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-black text-sm text-[#84a9d1]">إلغاء</button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );

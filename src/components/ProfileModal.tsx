@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useChatStore } from '../store/useChatStore';
 import { motion } from 'motion/react';
-import { X, Star, Gift, MessageSquare, Edit2, Check, Award, ShoppingBag, Package, Sparkles, Crown, Zap, Lock } from 'lucide-react';
+import { X, Star, Gift, MessageSquare, Edit2, Check, Award, ShoppingBag, Package, Sparkles, Crown, Zap, Lock, User as UserIcon } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getGlobalRank } from '../lib/ranks';
 
@@ -32,6 +32,7 @@ const ROLE_BADGE: Record<string, string> = {
 
 const CATEGORY_LABELS: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   frame:        { label: 'إطارات الصورة', icon: <Crown size={14} />,    color: 'text-yellow-500' },
+  avatar:       { label: 'الأفاتار',      icon: <UserIcon size={14} />, color: 'text-blue-500' },
   entry_effect: { label: 'تأثيرات الدخول', icon: <Sparkles size={14} />, color: 'text-purple-500' },
   badge:        { label: 'شارات مميزة',   icon: <Award size={14} />,      color: 'text-green-500' },
 };
@@ -165,6 +166,13 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
       setUser({ ...currentUser, [column]: newVal } as any);
       setProfile((prev: any) => ({ ...prev, [column]: newVal }));
     }
+    
+    // Handle avatar change
+    if (item.category === 'avatar') {
+      await supabase.from('profiles').update({ avatar_url: item.image_url }).eq('id', currentUser.id);
+      setUser({ ...currentUser, avatar_url: item.image_url });
+      setProfile((prev: any) => ({ ...prev, avatar_url: item.image_url }));
+    }
 
     await supabase.from('user_items').update({ is_equipped: false }).eq('user_id', currentUser.id).in('item_id', sameCategory);
 
@@ -229,12 +237,26 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
           <div className="p-6 space-y-5 bg-[#f8fbff]">
             {/* Avatar + Name */}
             <div className="flex items-center gap-5 bg-white p-4 rounded-2xl shadow-sm border border-[#84a9d1]/20">
-              <div className="relative">
-                <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`}
-                  className="w-20 h-20 rounded-2xl border-4 border-[#84a9d1]/30 bg-[#f0f4f8] shadow-lg"
-                  alt=""
-                />
+              <div className={cn("relative shrink-0 flex items-center justify-center p-1 rounded-2xl", profile.equipped_frame)}>
+                <div className="w-24 h-24 rounded-2xl border-4 border-[#84a9d1]/30 bg-[#f0f4f8] shadow-lg flex items-center justify-center text-5xl overflow-hidden bg-white">
+                  {profile.avatar_url?.startsWith('http') ? (
+                    <img src={profile.avatar_url} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    profile.avatar_url || '🧔'
+                  )}
+                </div>
+                {isEditing && isSelf && (
+                  <div className="absolute -left-2 -bottom-2 flex flex-col gap-1">
+                    <button 
+                      onClick={() => setProfile({...profile, avatar_url: '🧔'})}
+                      className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center bg-white shadow-sm", profile.avatar_url==='🧔' ? 'border-blue-500 scale-110' : 'border-gray-200')}
+                    >🧔</button>
+                    <button 
+                      onClick={() => setProfile({...profile, avatar_url: '👩'})}
+                      className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center bg-white shadow-sm", profile.avatar_url==='👩' ? 'border-pink-500 scale-110' : 'border-gray-200')}
+                    >👩</button>
+                  </div>
+                )}
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <div className="flex-1 min-w-0">

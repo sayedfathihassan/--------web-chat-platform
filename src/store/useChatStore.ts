@@ -209,6 +209,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         // Skip entry animation if:
         // 1. It's me entering (and I want others to see it, not me)
         // 2. The user was already joined (this is just a presence update)
+        // 3. The join happened very shortly after a previous one (to avoid sync noise)
         if (myUser && (presence.userId === myUser.id || alreadyJoined.has(presence.userId))) {
           // Still add to set to be sure
           if (presence.userId) {

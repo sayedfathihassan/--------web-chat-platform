@@ -16,9 +16,14 @@ export const DEFAULT_SHOP_ITEMS = [
   { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd', name_ar: 'رفرفة العصفورة', category: 'entry_effect', image_url: '🦅', preview_css: 'entry-bird', points_cost: 1200, is_active: true },
   { id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', name_ar: 'زئير الأسد', category: 'entry_effect', image_url: '🦁', preview_css: 'entry-lion', points_cost: 3500, is_active: true },
   { id: 'ffffffff-ffff-ffff-ffff-ffffffffffff', name_ar: 'دخول الدب', category: 'entry_effect', image_url: '🐻', preview_css: 'entry-bear', points_cost: 2000, is_active: true },
-  // Badges
+  // 10. Badges
   { id: '66666666-6666-6666-6666-666666666666', name_ar: 'شارة VIP', category: 'badge', image_url: '💎', preview_css: 'badge-vip', points_cost: 2000, is_active: true },
   { id: '77777777-7777-7777-7777-777777777777', name_ar: 'شارة الأسطورة', category: 'badge', image_url: '🏆', preview_css: 'badge-legend', points_cost: 5000, is_active: true },
+  // 11. Custom Avatars
+  { id: 'av-boy-1', name_ar: 'أفاتار فتى 1', category: 'avatar', image_url: '🧔', preview_css: 'avatar-boy-1', points_cost: 0, is_active: true },
+  { id: 'av-girl-1', name_ar: 'أفاتار فتاة 1', category: 'avatar', image_url: '👩', preview_css: 'avatar-girl-1', points_cost: 0, is_active: true },
+  { id: 'av-king-1', name_ar: 'أفاتار ملكي', category: 'avatar', image_url: '🤴', preview_css: 'avatar-king', points_cost: 5000, is_active: true },
+  { id: 'av-queen-1', name_ar: 'أفاتار ملكة', category: 'avatar', image_url: '👸', preview_css: 'avatar-queen', points_cost: 5000, is_active: true },
 ];
 
 export const DEFAULT_GIFTS: Gift[] = [

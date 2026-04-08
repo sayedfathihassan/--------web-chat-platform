@@ -4,7 +4,7 @@ import { useChatStore, OnlineUser } from '../store/useChatStore';
 import { Gift as GiftItem, MicSeat as MicSeatType, DEFAULT_SHOP_ITEMS } from '../types';
 import {
   Send, Smile, Users, Mic, Mic2, LogOut, Gift as GiftIcon,
-  Shield, User as UserIcon, Volume2, VolumeX, Star, Crown
+  Shield, User as UserIcon, Volume2, VolumeX, Star, Crown, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -69,6 +69,7 @@ export default function RoomView() {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; userId: string } | null>(null);
   const [flyingGift, setFlyingGift] = useState<{ emoji: string; key: number } | null>(null);
   const [showStylePicker, setShowStylePicker] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -301,6 +302,13 @@ export default function RoomView() {
           >
             {isSoundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
+          
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="md:hidden p-1 bg-white/30 rounded text-[#1e3a5f] hover:bg-white/50 transition-all"
+          >
+            <Users size={16} />
+          </button>
           <div className="w-6 h-5 bg-white/50 border border-[#84a9d1] rounded-sm"></div>
           <button
             onClick={handleLeaveRoom}
@@ -313,7 +321,11 @@ export default function RoomView() {
       <div className="flex-1 flex overflow-hidden">
 
         {/* ── Sidebar ── */}
-        <div className="w-56 bg-[#eef4f9] border-l border-[#84a9d1] flex flex-col shrink-0">
+        <div className={cn(
+          "bg-[#eef4f9] border-l border-[#84a9d1] flex flex-col shrink-0 transition-all duration-300 z-[60]",
+          "fixed inset-y-0 right-0 w-64 shadow-2xl md:relative md:inset-0 md:w-56 md:shadow-none",
+          isSidebarOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"
+        )}>
 
           {/* Sidebar header */}
           <div className="bg-[#b8d1e8] px-3 py-2 border-b border-[#84a9d1] flex items-center justify-between shrink-0">
@@ -321,12 +333,9 @@ export default function RoomView() {
               <Users size={13} className="text-[#1e3a5f]" />
               <span className="text-[10px] font-black text-[#1e3a5f]">المتواجدون ({onlineUsers.length})</span>
             </div>
-            <span className={cn(
-              "text-[8px] px-2 py-0.5 rounded-full text-white font-black transition-colors", 
-              connectionState === 'SUBSCRIBED' ? "bg-green-500" : "bg-orange-500"
-            )}>
-              {connectionState === 'SUBSCRIBED' ? 'متصل' : 'جاري المزامنة...'}
-            </span>
+            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-[#1e3a5f] p-1">
+              <X size={14} />
+            </button>
           </div>
 
           {/* User list */}
@@ -343,30 +352,14 @@ export default function RoomView() {
                   className="flex items-center gap-2 px-2 py-1.5 hover:bg-[#b8d1e8]/50 cursor-pointer border-b border-[#84a9d1]/10 transition-colors group"
                 >
                   {/* Avatar with Frame */}
-                  <div className="relative shrink-0">
-                    {/* Frame glow effect if equipped */}
-                    {(u as any).equipped_frame && (
-                      <div className="absolute inset-0 rounded-lg z-0 animate-pulse opacity-60" style={{
-                        boxShadow: (u as any).equipped_frame?.includes('gold') ? '0 0 8px 2px #fbbf24' :
-                                   (u as any).equipped_frame?.includes('fire') ? '0 0 8px 2px #f97316' :
-                                   (u as any).equipped_frame?.includes('diamond') ? '0 0 8px 2px #22d3ee' :
-                                   (u as any).equipped_frame?.includes('stars') ? '0 0 8px 2px #a855f7' :
-                                   (u as any).equipped_frame?.includes('rose') ? '0 0 8px 2px #ec4899' : 'none'
-                      }} />
-                    )}
-                    <img
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`}
-                      className={cn(
-                        "w-8 h-8 rounded-lg bg-white relative z-10",
-                        (u as any).equipped_frame?.includes('gold')    ? 'border-2 border-yellow-400' :
-                        (u as any).equipped_frame?.includes('fire')    ? 'border-2 border-orange-500' :
-                        (u as any).equipped_frame?.includes('diamond') ? 'border-2 border-cyan-400' :
-                        (u as any).equipped_frame?.includes('stars')   ? 'border-2 border-purple-400' :
-                        (u as any).equipped_frame?.includes('rose')    ? 'border-2 border-pink-400' :
-                        'border border-[#84a9d1]/30'
+                  <div className={cn("relative shrink-0 flex items-center justify-center p-1 rounded-lg", (u as any).equipped_frame)}>
+                    <div className="w-9 h-9 rounded-lg border-2 border-white/50 bg-white shadow-sm flex items-center justify-center text-xl overflow-hidden relative z-10">
+                      {(u as any).avatar_url?.startsWith('http') ? (
+                        <img src={(u as any).avatar_url} className="w-full h-full object-cover" alt="" />
+                      ) : (
+                        (u as any).avatar_url || '🧔'
                       )}
-                      alt=""
-                    />
+                    </div>
                     <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white z-20"></div>
                   </div>
 
@@ -502,33 +495,45 @@ export default function RoomView() {
               <Mic size={13} className="text-orange-500" />
               <span className="text-[10px] font-black text-[#1e3a5f]">المايكات</span>
             </div>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar flex-1">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar flex-1 py-1">
               {Array.from({ length: currentRoom.max_mic_seats || 5 }, (_, i) => {
                 const seat = micSeats.find(s => s.seat_number === i + 1);
                 const seatUser = seat?.user_id ? onlineUsers.find(u => u.id === seat.user_id) : null;
+                const equippedFrame = (seatUser as any)?.equipped_frame;
+                
                 return (
                   <div
                     key={i}
                     onClick={() => handleMicSeatClick(i + 1)}
                     title={seatUser ? seatUser.displayName : `مقعد ${i + 1} - متاح`}
                     className={cn(
-                      "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border cursor-pointer transition-all hover:scale-110 relative",
+                      "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border cursor-pointer transition-all hover:scale-110 relative",
                       seat?.user_id
-                        ? "bg-orange-500 border-orange-600 text-white shadow-md shadow-orange-500/30"
-                        : "bg-white border-[#84a9d1] text-[#84a9d1] hover:border-orange-400"
+                        ? "bg-white border-white shadow-md"
+                        : "bg-white/40 border-dashed border-[#84a9d1] text-[#84a9d1] hover:bg-white hover:border-orange-400"
                     )}
                   >
                     {seat?.user_id ? (
-                      <div className="relative">
-                        <UserIcon size={14} />
-                        {seat.is_muted && <VolumeX size={8} className="absolute -top-1 -right-1 text-red-200" />}
+                      <div className={cn("relative flex items-center justify-center p-0.5 rounded-lg w-full h-full", equippedFrame)}>
+                        <div className="w-full h-full rounded-lg bg-slate-100 flex items-center justify-center text-2xl overflow-hidden relative z-10">
+                          {(seatUser as any)?.avatar_url?.startsWith('http') ? (
+                            <img src={(seatUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
+                          ) : (
+                            (seatUser as any)?.avatar_url || '🧔'
+                          )}
+                        </div>
+                        {seat.is_muted && (
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 border border-white z-20">
+                            <VolumeX size={8} />
+                          </div>
+                        )}
                       </div>
-                    ) : <Mic size={14} />}
-                    {seat?.user_id && (
-                       <span className="absolute -bottom-1 -left-1 bg-white text-orange-600 text-[6px] px-1 rounded-full border border-orange-200 font-black shadow-sm">
-                         {i + 1}
-                       </span>
+                    ) : (
+                      <Mic size={16} className="opacity-40" />
                     )}
+                    <span className="absolute -bottom-1 -left-1 bg-[#1e3a5f] text-white text-[7px] px-1.5 rounded-full border border-white font-black shadow-sm z-30">
+                      {i + 1}
+                    </span>
                   </div>
                 );
               })}
@@ -576,12 +581,12 @@ export default function RoomView() {
                          return (
                            <div className="relative shrink-0 self-end w-10 h-10">
                              {/* Base Avatar */}
-                             <div className="w-full h-full rounded-xl bg-white overflow-hidden border-2 border-slate-200">
-                               <img
-                                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.username}`}
-                                 className="w-full h-full object-cover"
-                                 alt=""
-                               />
+                             <div className="w-full h-full rounded-xl bg-white overflow-hidden border-2 border-slate-200 flex items-center justify-center text-3xl">
+                               {(msgUser as any)?.avatar_url?.startsWith('http') ? (
+                                 <img src={(msgUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
+                               ) : (
+                                 (msgUser as any)?.avatar_url || '🧔'
+                               )}
                              </div>
                              
                              {/* Independent Frame Overlay (No Overflow Hidden) */}

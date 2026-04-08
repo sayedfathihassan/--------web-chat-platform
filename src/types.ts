@@ -2,41 +2,36 @@ export type Role = 'owner' | 'super_admin' | 'admin' | 'friend' | 'member' | 'gu
 
 export const DEFAULT_SHOP_ITEMS = [
   // ─── Frames (Ornamental Decorative Borders) ───
-  { id: '11111111-1111-1111-1111-111111111111', name_ar: 'إطار الملك المذهب', category: 'frame', image_url: '👑', preview_css: 'frame-king', points_cost: 500, is_active: true },
-  { id: '22222222-2222-2222-2222-222222222222', name_ar: 'إطار نار الجحيم', category: 'frame', image_url: '🔥', preview_css: 'frame-fire', points_cost: 800, is_active: true },
-  { id: '33333333-3333-3333-3333-333333333333', name_ar: 'إطار الألماس المشع', category: 'frame', image_url: '💎', preview_css: 'frame-diamond', points_cost: 1500, is_active: true },
-  { id: '88888888-8888-8888-8888-888888888888', name_ar: 'إطار النينجا الليلي', category: 'frame', image_url: '🥷', preview_css: 'frame-ninja', points_cost: 1000, is_active: true },
-  { id: '99999999-9999-9999-9999-999999999999', name_ar: 'إطار الطبيعة الخلابة', category: 'frame', image_url: '🌿', preview_css: 'frame-nature', points_cost: 600, is_active: true },
+  { id: 'f001', name_ar: 'إطار الملك المذهب', category: 'frame', image_url: '👑', preview_css: 'frame-king-premium', points_cost: 2000, is_active: true },
+  { id: 'f002', name_ar: 'إطار الجحيم المشتعل', category: 'frame', image_url: '🔥', preview_css: 'frame-fire-premium', points_cost: 3500, is_active: true },
+  { id: 'f003', name_ar: 'إطار الألماس اللامع', category: 'frame', image_url: '💎', preview_css: 'frame-diamond-pro', points_cost: 5000, is_active: true },
+  { id: 'f004', name_ar: 'إطار النينجا الغامض', category: 'frame', image_url: '🥷', preview_css: 'frame-ninja-dark', points_cost: 1500, is_active: true },
+  { id: 'f005', name_ar: 'إطار النور الساطع', category: 'frame', image_url: '✨', preview_css: 'frame-light-beams', points_cost: 2500, is_active: true },
+  { id: 'f006', name_ar: 'إطار المحارب القديم', category: 'frame', image_url: '🛡️', preview_css: 'frame-warrior-ancient', points_cost: 1800, is_active: true },
 
   // ─── Entry Effects (Visual Join Animations) ───
-  { id: '44444444-4444-4444-4444-444444444444', name_ar: 'دخول العظماء', category: 'entry_effect', image_url: '🎺', preview_css: 'entry-royal', points_cost: 2000, is_active: true },
-  { id: '55555555-5555-5555-5555-555555555555', name_ar: 'دخول ناري', category: 'entry_effect', image_url: '🔥', preview_css: 'entry-fire', points_cost: 1500, is_active: true },
-  { id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', name_ar: 'دخول رومانسي', category: 'entry_effect', image_url: '💖', preview_css: 'entry-heart', points_cost: 1800, is_active: true },
-  { id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', name_ar: 'تحليق الطائرة', category: 'entry_effect', image_url: '✈️', preview_css: 'entry-plane', points_cost: 2500, is_active: true },
-  { id: 'cccccccc-cccc-cccc-cccc-cccccccccccc', name_ar: 'اقتحام الدبابة', category: 'entry_effect', image_url: '🛡️', preview_css: 'entry-tank', points_cost: 3000, is_active: true },
-  { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd', name_ar: 'رفرفة العصفورة', category: 'entry_effect', image_url: '🦅', preview_css: 'entry-bird', points_cost: 1200, is_active: true },
-  { id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', name_ar: 'زئير الأسد', category: 'entry_effect', image_url: '🦁', preview_css: 'entry-lion', points_cost: 3500, is_active: true },
-  { id: 'ffffffff-ffff-ffff-ffff-ffffffffffff', name_ar: 'دخول الدب', category: 'entry_effect', image_url: '🐻', preview_css: 'entry-bear', points_cost: 2000, is_active: true },
+  { id: 'e001', name_ar: 'دخول الملك العظيم', category: 'entry_effect', image_url: '👑', preview_css: 'entry-royal', points_cost: 10000, is_active: true },
+  { id: 'e002', name_ar: 'وصول الطائرة الخاصة', category: 'entry_effect', image_url: '✈️', preview_css: 'entry-plane', points_cost: 7500, is_active: true },
+  { id: 'e003', name_ar: 'هجوم الدبابة الضاربة', category: 'entry_effect', image_url: '🛡️', preview_css: 'entry-tank', points_cost: 15000, is_active: true },
+  { id: 'e004', name_ar: 'تحليق الصقر الحر', category: 'entry_effect', image_url: '🦅', preview_css: 'entry-bird', points_cost: 5000, is_active: true },
+  { id: 'e005', name_ar: 'زئير الأسد المرعب', category: 'entry_effect', image_url: '🦁', preview_css: 'entry-lion', points_cost: 20000, is_active: true },
+  { id: 'e006', name_ar: 'ظهور النجم الساطع', category: 'entry_effect', image_url: '🌟', preview_css: 'entry-star-flash', points_cost: 4000, is_active: true },
 
   // ─── Badges (Icons next to username) ───
-  { id: 'bbbbbbbb-1111-1111-1111-111111111111', name_ar: 'شارة VIP الماسية', category: 'badge', image_url: '💎', preview_css: 'badge-vip', points_cost: 2000, is_active: true },
-  { id: 'cccccccc-2222-2222-2222-222222222222', name_ar: 'شارة الأسطورة الذهبية', category: 'badge', image_url: '🏆', preview_css: 'badge-legend', points_cost: 5000, is_active: true },
-  { id: 'dddddddd-3333-3333-3333-333333333333', name_ar: 'نجم الموقع', category: 'badge', image_url: '🌟', preview_css: 'badge-star', points_cost: 1000, is_active: true },
-  { id: 'eeeeeeee-4444-4444-4444-444444444444', name_ar: 'قلب طيب', category: 'badge', image_url: '❤️', preview_css: 'badge-heart', points_cost: 500, is_active: true },
+  { id: 'b001', name_ar: 'تاج الفخامة', category: 'badge', image_url: '👑', preview_css: 'badge-royal-crown', points_cost: 1000, is_active: true },
+  { id: 'b002', name_ar: 'نجمة التميز', category: 'badge', image_url: '🌟', preview_css: 'badge-super-star', points_cost: 500, is_active: true },
+  { id: 'b003', name_ar: 'قلب الوفاء المذهب', category: 'badge', image_url: '💛', preview_css: 'badge-gold-heart', points_cost: 800, is_active: true },
+  { id: 'b004', name_ar: 'ماسة الحظ النادرة', category: 'badge', image_url: '💎', preview_css: 'badge-lucky-diamond', points_cost: 2500, is_active: true },
+  { id: 'b005', name_ar: 'درع الحماية الفضي', category: 'badge', image_url: '🛡️', preview_css: 'badge-silver-shield', points_cost: 1200, is_active: true },
+  { id: 'b006', name_ar: 'وسام الأسطورة', category: 'badge', image_url: '🏆', preview_css: 'badge-legendary-medal', points_cost: 5000, is_active: true },
 
-  // ─── Custom Avatars ───
-  { id: 'a0a0a0a0-1111-4000-8000-000000000001', name_ar: 'الشاب الأنيق', category: 'avatar', image_url: '/avatars/boy-1.png', preview_css: 'avatar-boy', points_cost: 100, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000002', name_ar: 'المغامر الشجاع', category: 'avatar', image_url: '/avatars/boy-2.png', preview_css: 'avatar-boy', points_cost: 200, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000003', name_ar: 'النينجا الغامض', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Felix&backgroundColor=b6e3f4', preview_css: 'avatar-boy', points_cost: 500, is_active: true },
-  { id: 'a0a0a0a0-1111-4000-8000-000000000004', name_ar: 'ملك القراصنة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Liam&backgroundColor=c0aede', preview_css: 'avatar-boy', points_cost: 1000, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000001', name_ar: 'الفتاة الحالمة', category: 'avatar', image_url: '/avatars/girl-1.png', preview_css: 'avatar-girl', points_cost: 100, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000002', name_ar: 'الملكة المتوجة', category: 'avatar', image_url: '/avatars/girl-2.png', preview_css: 'avatar-girl', points_cost: 1500, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000005', name_ar: 'المبدعة الصغيرة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Nala&backgroundColor=c0aede', preview_css: 'avatar-girl', points_cost: 200, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000006', name_ar: 'فراشة الربيع', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Jade&backgroundColor=b6e3f4', preview_css: 'avatar-girl', points_cost: 400, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000007', name_ar: 'أميرة القصر', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Bella&backgroundColor=d1d4f9', preview_css: 'avatar-girl', points_cost: 2500, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000008', name_ar: 'الفارسة الشجاعة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Aura&backgroundColor=ffd5dc', preview_css: 'avatar-girl', points_cost: 600, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000009', name_ar: 'نجمة السينما', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Iris&backgroundColor=ffdfbf', preview_css: 'avatar-girl', points_cost: 3000, is_active: true },
-  { id: 'e0e0e0e0-2222-4000-8000-000000000010', name_ar: 'الجوهرة المصونة', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Ruby&backgroundColor=c0aede', preview_css: 'avatar-girl', points_cost: 4500, is_active: true },
+  // ─── Premium Avatars ───
+  { id: 'a001', name_ar: 'الشيخ الأنيق', category: 'avatar', image_url: '/avatars/boy-1.png', preview_css: 'avatar-boy', points_cost: 500, is_active: true },
+  { id: 'a002', name_ar: 'الفارس المغطى', category: 'avatar', image_url: '/avatars/boy-2.png', preview_css: 'avatar-boy', points_cost: 800, is_active: true },
+  { id: 'a003', name_ar: 'المبدع المتألق', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/big-smile/png?seed=Felix&backgroundColor=b6e3f4', preview_css: 'avatar-boy', points_cost: 1000, is_active: true },
+  { id: 'a004', name_ar: 'الملكة الحالمة', category: 'avatar', image_url: '/avatars/girl-1.png', preview_css: 'avatar-girl', points_cost: 500, is_active: true },
+  { id: 'a005', name_ar: 'الأميرة المتوجة', category: 'avatar', image_url: '/avatars/girl-2.png', preview_css: 'avatar-girl', points_cost: 1500, is_active: true },
+  { id: 'a006', name_ar: 'الجمال الهادئ', category: 'avatar', image_url: 'https://api.dicebear.com/7.x/lorelei/png?seed=Nala&backgroundColor=c0aede', preview_css: 'avatar-girl', points_cost: 700, is_active: true },
 ];
 
 export const DEFAULT_GIFTS: Gift[] = [

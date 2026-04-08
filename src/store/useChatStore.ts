@@ -244,8 +244,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
       .on('presence', { event: 'sync' }, () => {
         const newState = channel.presenceState();
         const users: OnlineUser[] = [];
+        const alreadyJoined = new Set(get().alreadyJoinedUserIds);
         
         Object.keys(newState).forEach((key) => {
+          alreadyJoined.add(key); // Mark as already present so join logic ignores them
           const presence = (newState[key] as any[])[0];
           if (presence) {
             users.push({
@@ -263,7 +265,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           }
         });
         
-        set({ onlineUsers: users });
+        set({ onlineUsers: users, alreadyJoinedUserIds: alreadyJoined });
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         const presence = newPresences[0] as any;

@@ -554,7 +554,7 @@ export default function RoomView() {
                     {seat?.user_id ? (
                       <div className={cn("relative flex items-center justify-center p-0.5 rounded-lg w-full h-full", equippedFrame)}>
                         <div className="w-full h-full rounded-lg bg-slate-100 flex items-center justify-center text-2xl overflow-hidden relative z-10">
-                          {(seatUser as any)?.avatar_url?.startsWith('http') ? (
+                          {(seatUser as any)?.avatar_url?.startsWith('http') || (seatUser as any)?.avatar_url?.startsWith('/') ? (
                             <img src={(seatUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
                           ) : (
                             (seatUser as any)?.avatar_url || '🧔'
@@ -638,7 +638,7 @@ export default function RoomView() {
                            <div className="relative shrink-0 self-end w-10 h-10">
                              {/* Base Avatar */}
                              <div className="w-full h-full rounded-xl bg-white overflow-hidden border-2 border-slate-200 flex items-center justify-center text-3xl">
-                               {(msgUser as any)?.avatar_url?.startsWith('http') ? (
+                               {(msgUser as any)?.avatar_url?.startsWith('http') || (msgUser as any)?.avatar_url?.startsWith('/') ? (
                                  <img src={(msgUser as any).avatar_url} className="w-full h-full object-cover" alt="" />
                                ) : (
                                  (msgUser as any)?.avatar_url || '🧔'

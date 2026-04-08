@@ -392,7 +392,7 @@ export default function ProfileModal({ userId, onClose, initialTab = 'profile' }
                     className="bg-white rounded-xl border border-[#84a9d1]/30 hover:border-orange-400 p-2 flex flex-col items-center justify-between shadow-sm transition-all relative overflow-hidden aspect-[4/5] group"
                   >
                     <div className="w-full flex-1 rounded-lg flex items-center justify-center text-3xl bg-gradient-to-br from-[#eef4f9] to-[#deedf7] group-hover:scale-105 transition-transform overflow-hidden">
-                      {item.image_url.startsWith('http') ? (
+                      {(item.image_url.startsWith('http') || item.image_url.startsWith('/')) ? (
                         <img src={item.image_url} className="w-full h-full object-contain p-1" alt="" />
                       ) : (
                         item.image_url

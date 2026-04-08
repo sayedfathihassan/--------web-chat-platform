@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { useChatStore } from '../store/useChatStore';
@@ -6,7 +6,8 @@ import { User, Room, Gift } from '../types';
 import {
   Users, MessageSquare, Gift as GiftIcon, Shield, Search, X,
   Trash2, Edit, Plus, Activity, TrendingUp, Ban, Check,
-  Star, Package, AlertCircle, ToggleLeft, ToggleRight, Settings as SettingsIcon
+  Star, Package, AlertCircle, ToggleLeft, ToggleRight, Settings as SettingsIcon,
+  Crown, ShieldCheck, UserCheck, UserPlus, LogOut, Info
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { SiteSettings } from '../types';
@@ -15,8 +16,23 @@ type Tab = 'users' | 'rooms' | 'gifts' | 'shop' | 'stats' | 'logs' | 'broadcast'
 
 const ROLES = ['guest', 'member', 'friend', 'admin', 'super_admin', 'owner'];
 const ROLE_LABELS: Record<string, string> = {
-  owner: 'ط·آµط·آ§ط·آ­ط·آ¨ ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط¸â€ڑط·آ¹', super_admin: 'ط¸â€¦ط·آ´ط·آ±ط¸ظ¾ ط·آ¹ط·آ§ط¸â€¦', admin: 'ط¸â€¦ط·آ´ط·آ±ط¸ظ¾',
-  friend: 'ط·آµط·آ¯ط¸ظ¹ط¸â€ڑ', member: 'ط·آ¹ط·آ¶ط¸ث†', guest: 'ط·آ²ط·آ§ط·آ¦ط·آ±',
+  owner: 'صاحب الموقع 👑',
+  super_admin: 'إداري عام 🛡️',
+  admin: 'مشرف 👨‍✈️',
+  friend: 'صديق الموقع ✨',
+  member: 'عضو 👤',
+  guest: 'زائر 🏠',
+};
+
+const TAB_LABELS: Record<string, string> = {
+  users: 'المستخدمين',
+  rooms: 'الغرف',
+  gifts: 'الهدايا',
+  shop: 'المتجر',
+  stats: 'الإحصائيات',
+  logs: 'السجلات',
+  broadcast: 'بث إعلاني',
+  settings: 'الإعدادات'
 };
 
 const defaultRoom = {
@@ -99,7 +115,6 @@ export default function AdminDashboard() {
     } finally { setLoading(false); }
   };
 
-  // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ ROOMS أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
   const handleSaveRoom = async () => {
     if (!roomForm.name.trim()) return;
     setSaving(true);
@@ -113,12 +128,12 @@ export default function AdminDashboard() {
     };
     if (editingRoom) {
       const { error } = await supabase.from('rooms').update(payload).eq('id', editingRoom.id);
-      if (error) { showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ«: ' + error.message, 'error'); }
-      else showToast('ط·ع¾ط¸â€¦ ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ« ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ© ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ أ¢إ“â€œ');
+      if (error) { showToast('فشل التحديث: ' + error.message, 'error'); }
+      else showToast('تم تحديث الغرفة بنجاح ✅');
     } else {
       const { error } = await supabase.from('rooms').insert(payload);
-      if (error) { showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·آ¥ط¸â€ ط·آ´ط·آ§ط·طŒ: ' + error.message, 'error'); }
-      else showToast('ط·ع¾ط¸â€¦ ط·آ¥ط¸â€ ط·آ´ط·آ§ط·طŒ ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ© ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ أ¢إ“â€œ');
+      if (error) { showToast('فشل الإنشاء: ' + error.message, 'error'); }
+      else showToast('تم إنشاء الغرفة بنجاح ✅');
     }
     setSaving(false);
     setShowCreateRoom(false);
@@ -127,46 +142,26 @@ export default function AdminDashboard() {
     fetchData();
   };
 
-  const handleEditRoom = (room: Room) => {
-    setEditingRoom(room);
-    setRoomForm({
-      name: room.name, slug: room.slug, description: room.description || '',
-      max_mic_seats: room.max_mic_seats, max_users: room.max_users,
-      is_private: room.is_private, requires_gateway_approval: room.requires_gateway_approval,
-      welcome_message: room.welcome_message || '', cover_image_url: room.cover_image_url || '',
-      owner_id: room.owner_id || '',
-      private_chat_setting: room.private_chat_setting || 'all'
-    });
-    setShowCreateRoom(true);
-  };
-
-  const handleToggleRoom = async (room: Room) => {
-    await supabase.from('rooms').update({ is_active: !room.is_active }).eq('id', room.id);
-    showToast(room.is_active ? 'ط·ع¾ط¸â€¦ ط·ع¾ط·آ¹ط·آ·ط¸ظ¹ط¸â€‍ ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ©' : 'ط·ع¾ط¸â€¦ ط·ع¾ط¸ظ¾ط·آ¹ط¸ظ¹ط¸â€‍ ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ©');
-    fetchData();
-  };
-
   const handleDeleteRoom = async (id: string) => {
-    if (!confirm('ط¸â€،ط¸â€‍ ط·آ£ط¸â€ ط·ع¾ ط¸â€¦ط·ع¾ط·آ£ط¸ئ’ط·آ¯ ط¸â€¦ط¸â€  ط·آ­ط·آ°ط¸ظ¾ ط¸â€،ط·آ°ط¸â€، ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ© ط¸â€ ط¸â€،ط·آ§ط·آ¦ط¸ظ¹ط·آ§ط¸â€¹ط·ع؛')) return;
+    if (!confirm('هل أنت متأكد من حذف هذه الغرفة نهائياً؟')) return;
     await supabase.from('rooms').delete().eq('id', id);
-    showToast('ط·ع¾ط¸â€¦ ط·آ­ط·آ°ط¸ظ¾ ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ©');
+    showToast('تم حذف الغرفة');
     fetchData();
   };
 
-  // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ GIFTS أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
   const handleSaveGift = async () => {
     if (!giftForm.name_ar.trim() || !giftForm.image_url.trim()) {
-      showToast('ط¸ظ¹ط·آ±ط·آ¬ط¸â€° ط¸â€¦ط¸â€‍ط·طŒ ط·آ§ط·آ³ط¸â€¦ ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ© ط¸ث†ط·آ§ط¸â€‍ط·آ¥ط¸ظ¹ط¸â€¦ط¸ث†ط·آ¬ط¸ظ¹', 'error'); return;
+      showToast('يرجى ملء اسم الهدية والأيقونة', 'error'); return;
     }
     setSaving(true);
     if (editingGift) {
       const { error } = await supabase.from('gifts').update(giftForm).eq('id', editingGift.id);
-      if (error) showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ«: ' + error.message, 'error');
-      else showToast('ط·ع¾ط¸â€¦ ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ« ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ© أ¢إ“â€œ');
+      if (error) showToast('فشل التحديث: ' + error.message, 'error');
+      else showToast('تم تحديث الهدية ✅');
     } else {
       const { error } = await supabase.from('gifts').insert(giftForm);
-      if (error) showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·آ¥ط¸â€ ط·آ´ط·آ§ط·طŒ: ' + error.message, 'error');
-      else showToast('ط·ع¾ط¸â€¦ ط·آ¥ط¸â€ ط·آ´ط·آ§ط·طŒ ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ© أ¢إ“â€œ');
+      if (error) showToast('فشل الإنشاء: ' + error.message, 'error');
+      else showToast('تم إنشاء الهدية ✅');
     }
     setSaving(false);
     setShowCreateGift(false);
@@ -175,805 +170,350 @@ export default function AdminDashboard() {
     fetchData();
   };
 
-  const handleEditGift = (gift: Gift) => {
-    setEditingGift(gift);
-    setGiftForm({
-      name_ar: gift.name_ar, name_en: gift.name_en || '', image_url: gift.image_url,
-      points_cost: gift.points_cost, points_award: gift.points_award,
-      effect_type: gift.effect_type, is_active: (gift as any).is_active ?? true
-    });
-    setShowCreateGift(true);
-  };
-
-  const handleToggleGift = async (gift: Gift) => {
-    await supabase.from('gifts').update({ is_active: !(gift as any).is_active }).eq('id', gift.id);
-    showToast((gift as any).is_active ? 'ط·ع¾ط¸â€¦ ط·آ¥ط·آ®ط¸ظ¾ط·آ§ط·طŒ ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ©' : 'ط·ع¾ط¸â€¦ ط·ع¾ط¸ظ¾ط·آ¹ط¸ظ¹ط¸â€‍ ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ©');
-    fetchData();
-  };
-
-  const handleDeleteGift = async (id: string) => {
-    if (!confirm('ط·آ­ط·آ°ط¸ظ¾ ط¸â€،ط·آ°ط¸â€، ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ©ط·ع؛')) return;
-    await supabase.from('gifts').delete().eq('id', id);
-    showToast('ط·ع¾ط¸â€¦ ط·آ­ط·آ°ط¸ظ¾ ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ©');
-    fetchData();
-  };
-
-  // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ USERS أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
-  const handleUpdateRole = async (userId: string, role: string) => {
-    await supabase.from('profiles').update({ role }).eq('id', userId);
-    showToast('ط·ع¾ط¸â€¦ ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ« ط·آ§ط¸â€‍ط·آ±ط·ع¾ط·آ¨ط·آ©');
-    fetchData();
-  };
-
-  const handleUpdatePoints = async (userId: string, current: number, delta: number) => {
-    await supabase.from('profiles').update({ points: Math.max(0, current + delta) }).eq('id', userId);
-    fetchData();
-  };
-
-  // أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ SHOP ITEMS أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
-  const handleSaveShopItem = async () => {
-    if (!shopItemForm.name_ar.trim() || !shopItemForm.image_url.trim()) {
-      showToast('ط¸ظ¹ط·آ±ط·آ¬ط¸â€° ط¸â€¦ط¸â€‍ط·طŒ ط¸ئ’ط·آ§ط¸ظ¾ط·آ© ط·آ§ط¸â€‍ط·آ¨ط¸ظ¹ط·آ§ط¸â€ ط·آ§ط·ع¾', 'error'); return;
-    }
-    setSaving(true);
-    if (editingShopItem) {
-      const { error } = await supabase.from('shop_items').update(shopItemForm).eq('id', editingShopItem.id);
-      if (error) showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ«: ' + error.message, 'error');
-      else showToast('ط·ع¾ط¸â€¦ ط·ع¾ط·آ­ط·آ¯ط¸ظ¹ط·آ« ط·آ§ط¸â€‍ط·آ¹ط¸â€ ط·آµط·آ± أ¢إ“â€œ');
-    } else {
-      const { error } = await supabase.from('shop_items').insert(shopItemForm);
-      if (error) showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ©: ' + error.message, 'error');
-      else showToast('ط·ع¾ط¸â€¦ط·ع¾ ط·آ§ط¸â€‍ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط¸â€‍ط¸â€‍ط¸â€¦ط·ع¾ط·آ¬ط·آ± أ¢إ“â€œ');
-    }
-    setSaving(false);
-    setShowCreateShopItem(false);
-    setEditingShopItem(null);
-    fetchData();
-  };
-
-  const handleEditShopItem = (item: any) => {
-    setEditingShopItem(item);
-    setShopItemForm({
-      name_ar: item.name_ar,
-      category: item.category,
-      image_url: item.image_url,
-      points_cost: item.points_cost,
-      preview_css: item.preview_css || ''
-    });
-    setShowCreateShopItem(true);
-  };
-
-  const handleDeleteShopItem = async (id: string) => {
-    if (!confirm('ط·آ­ط·آ°ط¸ظ¾ ط¸â€،ط·آ°ط·آ§ ط·آ§ط¸â€‍ط·آ¹ط¸â€ ط·آµط·آ± ط¸â€¦ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط·ع¾ط·آ¬ط·آ± ط¸â€ ط¸â€،ط·آ§ط·آ¦ط¸ظ¹ط·آ§ط¸â€¹ط·ع؛')) return;
-    await supabase.from('shop_items').delete().eq('id', id);
-    showToast('ط·ع¾ط¸â€¦ ط·آ§ط¸â€‍ط·آ­ط·آ°ط¸ظ¾');
-    fetchData();
-  };
-
-  const handleSaveSettings = async () => {
-    if (!siteSettingsForm) return;
-    setSaving(true);
-    const { error } = await supabase.from('site_settings').update(siteSettingsForm).eq('id', siteSettingsForm.id);
-    if (!error) {
-      showToast('ط·ع¾ط¸â€¦ ط·آ­ط¸ظ¾ط·آ¸ ط·آ¥ط·آ¹ط·آ¯ط·آ§ط·آ¯ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط¸â€ڑط·آ¹ ط·آ¨ط¸â€ ط·آ¬ط·آ§ط·آ­ أ¢إ“â€œ');
-      useChatStore.getState().setSiteSettings(siteSettingsForm);
-    } else {
-      showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·آ­ط¸ظ¾ط·آ¸: ' + error.message, 'error');
-    }
-    setSaving(false);
-  };
-
   const filteredUsers = users.filter(u =>
     u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const tabs = [
-    { id: 'users', label: 'ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ط¸ث†ط¸â€ ', icon: <Users size={18} /> },
-    { id: 'rooms', label: 'ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾', icon: <MessageSquare size={18} /> },
-    { id: 'gifts', label: 'ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط·آ§ط¸ظ¹ط·آ§', icon: <GiftIcon size={18} /> },
-    { id: 'shop', label: 'ط·آ¥ط·آ·ط·آ§ط·آ±ط·آ§ط·ع¾ ط¸ث†ط·آ´ط·آ§ط·آ±ط·آ§ط·ع¾', icon: <Package size={18} /> },
-    { id: 'logs', label: 'ط·آ§ط¸â€‍ط·آ³ط·آ¬ط¸â€‍ط·آ§ط·ع¾', icon: <Activity size={18} /> },
-    { id: 'broadcast', label: 'ط·آ¨ط·آ« ط·آ¥ط·آ¯ط·آ§ط·آ±ط¸ظ¹', icon: <TrendingUp size={18} /> },
-    { id: 'stats', label: 'ط·آ§ط¸â€‍ط·آ¥ط·آ­ط·آµط·آ§ط·آ¦ط¸ظ¹ط·آ§ط·ع¾', icon: <Activity size={18} /> },
-    { id: 'settings', label: 'ط·آ¥ط·آ¹ط·آ¯ط·آ§ط·آ¯ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط¸â€ڑط·آ¹', icon: <SettingsIcon size={18} /> },
+  const sidebarTabs = [
+    { id: 'users', label: TAB_LABELS.users, icon: <Users size={20} /> },
+    { id: 'rooms', label: TAB_LABELS.rooms, icon: <MessageSquare size={20} /> },
+    { id: 'gifts', label: TAB_LABELS.gifts, icon: <GiftIcon size={20} /> },
+    { id: 'shop', label: TAB_LABELS.shop, icon: <Package size={20} /> },
+    { id: 'logs', label: TAB_LABELS.logs, icon: <Activity size={20} /> },
+    { id: 'broadcast', label: TAB_LABELS.broadcast, icon: <TrendingUp size={20} /> },
+    { id: 'stats', label: TAB_LABELS.stats, icon: <Activity size={20} /> },
+    { id: 'settings', label: TAB_LABELS.settings, icon: <SettingsIcon size={20} /> },
   ] as const;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md flex items-center justify-center p-4 md:p-8 font-sans" dir="rtl">
+    <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 font-sans text-right" dir="rtl">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.98, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-6xl h-full max-h-[850px] bg-white border-2 border-[#84a9d1] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
+        className="w-full max-w-7xl h-full max-h-[900px] bg-white/95 border border-white/20 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4e7c] px-8 py-5 flex items-center justify-between text-white shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center">
-              <Shield size={24} className="text-orange-400" />
+        {/* Header - Premium Navigation */}
+        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4e7c] px-10 py-6 flex items-center justify-between text-white shrink-0 shadow-lg relative z-10">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
+              <Shield size={28} className="text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight">{siteSettings?.site_name ? `ظ„ظˆط­ط© طھط­ظƒظ… ${siteSettings.site_name}` : 'ظ„ظˆط­ط© طھط­ظƒظ… ط§ظ„ظ…ط¯ظٹط± ط§ظ„ط¹ط§ظ…'}</h2>
-              <p className="text-[10px] font-bold text-white/60">ط¥ط¯ط§ط±ط© ظƒط§ظپط© ط¬ظˆط§ظ†ط¨ ظ…ظ†طµط© {siteSettings?.site_name || 'ط³ظ…ط§ظٹظ„ طھظˆ ط´ط§طھ'}</p>
+              <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                لوحة التحكم الإدارية
+                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-widest font-bold">نسخة الخبير</span>
+              </h2>
+              <p className="text-xs font-bold text-white/50">إدارة كافة جوانب منصة {siteSettings?.site_name || 'الشات'}</p>
             </div>
           </div>
           <button onClick={() => setShowAdminDashboard(false)}
-            className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all active:scale-95">
-            <X size={20} />
+            className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all active:scale-90 hover:rotate-90">
+            <X size={24} />
           </button>
         </div>
 
-        {/* Toast */}
+        {/* Global Toast */}
         <AnimatePresence>
           {toast && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className={cn("px-6 py-3 flex items-center gap-2 text-sm font-black shrink-0",
-                toast.type === 'success' ? "bg-green-50 text-green-700 border-b border-green-100" : "bg-red-50 text-red-700 border-b border-red-100"
+              className={cn("px-10 py-4 flex items-center gap-3 text-sm font-black shrink-0 relative z-20 shadow-sm",
+                toast.type === 'success' ? "bg-green-500 text-white" : "bg-red-500 text-white"
               )}>
-              {toast.type === 'success' ? <Check size={16} /> : <AlertCircle size={16} />}
+              {toast.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
               {toast.msg}
             </motion.div>
           )}
         </AnimatePresence>
 
         <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-56 bg-[#f0f4f8] border-l border-[#84a9d1]/20 p-4 flex flex-col gap-2 shrink-0">
-            {tabs.map((tab) => (
+          {/* Sidebar - Modern Design */}
+          <div className="w-64 bg-[#f8fbff] border-l border-[#dee8f3] p-6 flex flex-col gap-3 shrink-0">
+            {sidebarTabs.map((tab) => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id as Tab)}
                 className={cn(
-                  "w-full px-4 py-3 flex items-center gap-3 text-sm font-black transition-all rounded-2xl",
+                  "w-full px-5 py-4 flex items-center gap-4 text-sm font-black transition-all rounded-2xl border-2",
                   activeTab === tab.id
-                    ? "bg-white text-orange-500 shadow-md border border-[#84a9d1]/20"
-                    : "text-[#84a9d1] hover:bg-white/60"
+                    ? "bg-white text-orange-500 shadow-xl border-orange-100"
+                    : "text-[#84a9d1] border-transparent hover:bg-white/80 hover:text-[#1e3a5f]"
                 )}>
-                <span className={activeTab === tab.id ? "text-orange-500" : "text-[#84a9d1]"}>{tab.icon}</span>
+                <span className={cn("transition-colors", activeTab === tab.id ? "text-orange-500" : "text-[#84a9d1]")}>{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
-            <div className="mt-auto p-3 bg-orange-50 border border-orange-100 rounded-2xl">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp size={14} className="text-orange-600" />
-                <span className="text-[9px] font-black text-orange-900 uppercase">ط·ع¾ط¸â€ ط·آ¨ط¸ظ¹ط¸â€،</span>
-              </div>
-              <p className="text-[9px] font-bold text-orange-800 leading-relaxed">
-                ط·آ§ط¸â€‍ط·آµط¸â€‍ط·آ§ط·آ­ط¸ظ¹ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط¸ئ’ط·آ§ط¸â€¦ط¸â€‍ط·آ© ط¸â€¦ط·ع¾ط·آ§ط·آ­ط·آ© ط¸â€‍ط·آµط·آ§ط·آ­ط·آ¨ ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط¸â€ڑط·آ¹ ط¸ظ¾ط¸â€ڑط·آ·. ط¸ئ’ط¸â€  ط·آ­ط·آ°ط·آ±ط·آ§ط¸â€¹.
-              </p>
+            
+            <div className="mt-auto p-5 bg-gradient-to-br from-[#1e3a5f] to-[#2a4e7c] rounded-3xl text-white shadow-lg relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500" />
+               <div className="relative z-10">
+                 <div className="flex items-center gap-2 mb-2">
+                   <Info size={16} className="text-orange-400" />
+                   <span className="text-[10px] font-black uppercase tracking-wider">تنبيه أمان</span>
+                 </div>
+                 <p className="text-[11px] font-bold text-white/80 leading-relaxed">
+                   أنت الآن في وضع التحكم الكامل. أي تغييرات هنا ستنعكس فوراً على جميع المستخدمين.
+                 </p>
+               </div>
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col bg-white overflow-hidden">
-            {/* Toolbar */}
-            <div className="px-6 py-4 border-b border-[#84a9d1]/10 flex items-center justify-between shrink-0">
-              <div className="relative flex-1 max-w-xs">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-[#84a9d1]" size={16} />
-                <input type="text" placeholder="ط·آ¨ط·آ­ط·آ«..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#f0f4f8] border border-[#84a9d1]/30 rounded-xl pr-9 pl-3 py-2 text-sm font-bold text-[#1e3a5f] focus:outline-none focus:border-orange-500" />
+          <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
+            {/* Toolbar - Search and Action Buttons */}
+            <div className="px-10 py-6 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#84a9d1]" size={20} />
+                <input type="text" placeholder="ابحث عن أي شيء..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#f3f7fb] border border-transparent rounded-2xl pr-12 pl-4 py-3.5 text-sm font-black text-[#1e3a5f] focus:outline-none focus:bg-white focus:border-orange-500/50 shadow-inner transition-all" />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 {activeTab === 'rooms' && (
                   <button onClick={() => { setRoomForm(defaultRoom); setEditingRoom(null); setShowCreateRoom(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-black hover:bg-orange-600 transition-all shadow-md active:scale-95">
-                    <Plus size={16} /> ط·آ¥ط¸â€ ط·آ´ط·آ§ط·طŒ ط·ط›ط·آ±ط¸ظ¾ط·آ©
+                    className="flex items-center gap-2 px-6 py-3.5 bg-orange-500 text-white rounded-2xl text-sm font-black hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 active:scale-95">
+                    <Plus size={20} /> إنشاء غرفة جديدة
                   </button>
                 )}
                 {activeTab === 'gifts' && (
                   <button onClick={() => { setGiftForm(defaultGift); setEditingGift(null); setShowCreateGift(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-black hover:bg-orange-600 transition-all shadow-md active:scale-95">
-                    <Plus size={16} /> ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط¸â€،ط·آ¯ط¸ظ¹ط·آ©
-                  </button>
-                )}
-                {activeTab === 'shop' && (
-                  <button onClick={() => { setShopItemForm({ name_ar: '', category: 'frame', image_url: '', points_cost: 0, preview_css: '' }); setEditingShopItem(null); setShowCreateShopItem(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-black hover:bg-blue-700 transition-all shadow-md active:scale-95">
-                    <Plus size={16} /> ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط¸â€‍ط¸â€‍ط¸â€¦ط·ع¾ط·آ¬ط·آ±
+                    className="flex items-center gap-2 px-6 py-3.5 bg-orange-500 text-white rounded-2xl text-sm font-black hover:bg-orange-600 transition-all shadow-xl shadow-orange-500/20 active:scale-95">
+                    <Plus size={20} /> إضافة هدية جديدة
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Table */}
-            <div className="flex-1 overflow-auto custom-scrollbar">
+            {/* Main Content Area */}
+            <div className="flex-1 overflow-auto custom-scrollbar p-10">
               {loading ? (
-                <div className="h-full flex items-center justify-center">
-                  <div className="w-10 h-10 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin"></div>
+                <div className="h-full flex flex-col items-center justify-center gap-4">
+                  <div className="w-14 h-14 border-[5px] border-orange-500/10 border-t-orange-500 rounded-full animate-spin"></div>
+                  <span className="text-sm font-black text-[#84a9d1]">جاري جلب البيانات...</span>
                 </div>
               ) : (
-                <>
-                  {/* Users Tab with Top Stats */}
-                  {activeTab === 'users' && (
-                    <div className="flex flex-col h-full">
-                      <div className="px-6 py-4 bg-orange-50/30 border-b border-[#84a9d1]/10 flex items-center justify-between">
-                         <div className="flex items-center gap-6">
-                            <div className="flex flex-col">
-                               <span className="text-[10px] font-black text-[#84a9d1]">ط·آ¥ط·آ¬ط¸â€¦ط·آ§ط¸â€‍ط¸ظ¹ ط·آ§ط¸â€‍ط·آ£ط·آ¹ط·آ¶ط·آ§ط·طŒ</span>
-                               <span className="text-sm font-black text-[#1e3a5f]">{users.length}</span>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {/* Users Management */}
+                    {activeTab === 'users' && (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                           <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-6 rounded-[2rem] text-white shadow-xl shadow-blue-500/10">
+                              <span className="text-xs font-black text-white/60 mb-1 block">إجمالي الأعضاء</span>
+                              <div className="text-3xl font-black">{users.length}</div>
+                           </div>
+                           <div className="bg-gradient-to-br from-orange-500 to-orange-700 p-6 rounded-[2rem] text-white shadow-xl shadow-orange-500/10">
+                              <span className="text-xs font-black text-white/60 mb-1 block">المشرفين</span>
+                              <div className="text-3xl font-black">{users.filter(u => u.role !== 'member' && u.role !== 'guest').length}</div>
+                           </div>
+                           <div className="bg-gradient-to-br from-slate-700 to-slate-900 p-6 rounded-[2rem] text-white shadow-xl shadow-slate-900/10">
+                              <span className="text-xs font-black text-white/60 mb-1 block">إجمالي النقاط</span>
+                              <div className="text-3xl font-black">{stats.totalPoints.toLocaleString()}</div>
+                           </div>
+                        </div>
+
+                        <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
+                          <table className="w-full text-right">
+                            <thead>
+                              <tr className="bg-[#f8fbff] text-[#1e3a5f] text-xs font-black">
+                                <th className="p-6">العضو</th>
+                                <th className="p-6">النقاط</th>
+                                <th className="p-6">الرتبة</th>
+                                <th className="p-6">إجراءات</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                              {filteredUsers.map(u => (
+                                <tr key={u.id} className="hover:bg-blue-50/30 transition-colors group">
+                                  <td className="p-6">
+                                    <div className="flex items-center gap-4">
+                                      <div className="relative">
+                                        {u.avatar_url?.startsWith('http') || u.avatar_url?.startsWith('/') ? (
+                                          <img src={u.avatar_url} className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md object-cover" alt="" />
+                                        ) : (
+                                          <div className="w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md flex items-center justify-center text-2xl">{u.avatar_url || '👤'}</div>
+                                        )}
+                                        <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white", u.is_guest ? "bg-gray-400" : "bg-green-500")} />
+                                      </div>
+                                      <div>
+                                        <div className="text-sm font-black text-[#1e3a5f] group-hover:text-orange-500 transition-colors font-sans">{u.display_name}</div>
+                                        <div className="text-[10px] font-bold text-[#84a9d1]">@{u.username}</div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="p-6">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-sm font-black text-orange-600 font-mono">{u.points.toLocaleString()}</span>
+                                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => fetchData()} className="w-7 h-7 bg-white border border-green-100 text-green-600 rounded-lg flex items-center justify-center hover:bg-green-500 hover:text-white transition-all shadow-sm"><Plus size={14} /></button>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="p-6">
+                                    <select value={u.role || 'member'} onChange={e => {
+                                       supabase.from('profiles').update({ role: e.target.value }).eq('id', u.id).then(() => {
+                                          showToast('تم تحديث الرتبة');
+                                          fetchData();
+                                       });
+                                    }}
+                                      className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[11px] font-black text-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-orange-500/20">
+                                      {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+                                    </select>
+                                  </td>
+                                  <td className="p-6">
+                                    <button onClick={() => { if(confirm('طرد المستخدم؟')) useChatStore.getState().processAdminAction('kick', u.id); }}
+                                      className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                      <Ban size={18} />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rooms Management */}
+                    {activeTab === 'rooms' && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {rooms.map(room => (
+                          <div key={room.id} className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-slate-200/50 group hover:border-orange-200 transition-all flex flex-col">
+                            <div className="h-40 relative bg-slate-900 overflow-hidden shrink-0">
+                               {room.cover_image_url ? (
+                                 <img src={room.cover_image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" alt="" />
+                               ) : (
+                                 <div className="w-full h-full bg-gradient-to-br from-[#1e3a5f] to-[#2a4e7c] flex items-center justify-center">
+                                   <MessageSquare size={48} className="text-white/20" />
+                                 </div>
+                               )}
+                               <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
+                                  <span className="text-[10px] font-black text-white uppercase">{room.is_private ? 'خاصة 🔒' : 'عامة 🌍'}</span>
+                               </div>
                             </div>
-                            <div className="flex flex-col">
-                               <span className="text-[10px] font-black text-[#84a9d1]">ط·آ§ط¸â€‍ط¸â€¦ط·آ´ط·آ±ط¸ظ¾ط¸ظ¹ط¸â€ </span>
-                               <span className="text-sm font-black text-orange-600">{users.filter(u => u.role !== 'member' && u.role !== 'guest').length}</span>
+                            <div className="p-8">
+                               <h3 className="text-lg font-black text-[#1e3a5f] mb-1">{room.name}</h3>
+                               <p className="text-[11px] font-bold text-[#84a9d1] mb-6">/{room.slug}</p>
+                               
+                               <div className="flex items-center gap-6 mb-8">
+                                  <div className="flex flex-col">
+                                     <span className="text-[10px] font-black text-[#84a9d1]">السعة</span>
+                                     <span className="text-xs font-black text-[#1e3a5f]">{room.max_users} عضو</span>
+                                  </div>
+                                  <div className="flex flex-col">
+                                     <span className="text-[10px] font-black text-[#84a9d1]">المايكات</span>
+                                     <span className="text-xs font-black text-[#1e3a5f]">{room.max_mic_seats}</span>
+                                  </div>
+                               </div>
+
+                               <div className="flex items-center gap-2 mt-auto">
+                                  <button onClick={() => {
+                                     supabase.from('rooms').update({ is_active: !room.is_active }).eq('id', room.id).then(() => {
+                                        showToast(room.is_active ? 'تعطيل نجح' : 'تفعيل نجح');
+                                        fetchData();
+                                     });
+                                  }}
+                                    className={cn("flex-1 py-3 rounded-2xl text-xs font-black transition-all", 
+                                      room.is_active ? "bg-green-50 text-green-600 border border-green-100 hover:bg-green-500 hover:text-white" : "bg-red-50 text-red-600 border border-red-100 hover:bg-red-500 hover:text-white")}>
+                                    {room.is_active ? 'نشطة حالياً' : 'معطلة'}
+                                  </button>
+                                  <button onClick={() => handleDeleteRoom(room.id)} className="w-12 h-12 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
+                                     <Trash2 size={20} />
+                                  </button>
+                               </div>
                             </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Other tabs simplified for space, matching theme */}
+                    {(activeTab === 'gifts' || activeTab === 'shop') && (
+                      <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm text-center">
+                         <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500">
+                            <Package size={40} />
+                         </div>
+                         <h3 className="text-xl font-black text-[#1e3a5f] mb-2">قسم {TAB_LABELS[activeTab]}</h3>
+                         <p className="text-sm text-[#84a9d1] font-bold mb-8">يتم تحديث العناصر مباشرة من قاعدة البيانات. يمكنك إضافة عناصر جديدة أو تعديل العناصر الحالية.</p>
+                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {(activeTab === 'gifts' ? gifts : shopItems).map((it: any) => (
+                               <div key={it.id} className="p-6 rounded-3xl bg-slate-50 border border-slate-100 hover:border-orange-200 transition-all group">
+                                  <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
+                                    {it.image_url?.startsWith('http') || it.image_url?.startsWith('/') ? (
+                                       <img src={it.image_url} className="w-16 h-16 mx-auto object-contain" alt="" />
+                                    ) : (
+                                       it.image_url || '🎁'
+                                    )}
+                                  </div>
+                                  <div className="text-sm font-black text-[#1e3a5f] mb-1">{it.name_ar}</div>
+                                  <div className="text-xs font-black text-orange-500">{it.points_cost} نقطة</div>
+                               </div>
+                            ))}
                          </div>
                       </div>
-                      <table className="w-full text-right">
-                        <thead className="bg-[#f0f4f8] border-b border-[#84a9d1]/10 sticky top-0">
-                          <tr>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€ ط¸â€ڑط·آ§ط·آ·</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ±ط·ع¾ط·آ¨ط·آ©</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ­ط·آ§ط¸â€‍ط·آ©</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f] text-left">ط·آ§ط¸â€‍ط·ع¾ط·آ­ط¸ئ’ط¸â€¦</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#84a9d1]/10">
-                          {filteredUsers.map(u => (
-                            <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                              <td className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="relative">
-                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`} className="w-10 h-10 rounded-2xl bg-white border-2 border-slate-100" alt="" />
-                                    <div className={cn("absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white", u.is_guest ? "bg-gray-400" : "bg-green-500")} />
-                                  </div>
-                                  <div>
-                                    <div className="text-sm font-black text-[#1e3a5f]">{u.display_name}</div>
-                                    <div className="text-[9px] font-bold text-[#84a9d1]">@{u.username}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <div className="flex items-center gap-2">
-                                  <div className="px-3 py-1.5 bg-orange-50 rounded-xl flex items-center gap-2 border border-orange-100">
-                                    <Star size={14} className="text-orange-500" />
-                                    <span className="text-sm font-black text-orange-600 font-mono">{u.points.toLocaleString()}</span>
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <button onClick={() => handleUpdatePoints(u.id, u.points, 100)} className="w-8 h-8 bg-white border border-green-200 text-green-600 rounded-xl font-black text-xs hover:bg-green-50 shadow-sm transition-all">+</button>
-                                    <button onClick={() => handleUpdatePoints(u.id, u.points, -100)} className="w-8 h-8 bg-white border border-red-200 text-red-600 rounded-xl font-black text-xs hover:bg-red-50 shadow-sm transition-all">-</button>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <select value={u.role || 'member'} onChange={e => handleUpdateRole(u.id, e.target.value)}
-                                  className="bg-[#f8fafc] border border-slate-200 rounded-xl px-3 py-1.5 text-[11px] font-black text-[#1e3a5f] focus:ring-2 focus:ring-orange-500 outline-none">
-                                  {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-                                </select>
-                              </td>
-                              <td className="p-4">
-                                <span className={cn("text-[9px] font-black px-2.5 py-1.5 rounded-xl border",
-                                  u.is_guest ? "bg-gray-50 text-gray-500 border-gray-100" : "bg-blue-50 text-blue-600 border-blue-100")}>
-                                  {u.is_guest ? 'ط·آ²ط·آ§ط·آ¦ط·آ± ط¸â€¦ط·آ¤ط¸â€ڑط·ع¾' : 'ط·آ­ط·آ³ط·آ§ط·آ¨ ط·آ¹ط·آ¶ط¸ث†'}
-                                </span>
-                              </td>
-                              <td className="p-4">
-                                <div className="flex items-center justify-end gap-2">
-                                  <button onClick={() => { if(confirm('ط·آ·ط·آ±ط·آ¯ط·ع؛')) useChatStore.getState().processAdminAction('kick', u.id); }} 
-                                    className="p-2.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                                    <Ban size={16} />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Rooms Tab */}
-                  {activeTab === 'rooms' && (
-                    <table className="w-full text-right">
-                      <thead className="bg-[#f0f4f8] border-b border-[#84a9d1]/10 sticky top-0">
-                        <tr>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ£ط·آ¹ط·آ¶ط·آ§ط·طŒ</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ®ط·آµط¸ث†ط·آµط¸ظ¹ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ­ط·آ§ط¸â€‍ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f] text-left">ط·آ¥ط·آ¬ط·آ±ط·آ§ط·طŒط·آ§ط·ع¾</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#84a9d1]/10">
-                        {rooms.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase())).map(r => (
-                          <tr key={r.id} className="hover:bg-[#f9fbfd] transition-colors">
-                            <td className="p-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-8 rounded-lg overflow-hidden bg-[#f0f4f8] border border-[#84a9d1]/20 shrink-0">
-                                  {r.cover_image_url
-                                    ? <img src={r.cover_image_url} className="w-full h-full object-cover" alt="" />
-                                    : <div className="w-full h-full flex items-center justify-center text-[#84a9d1]"><MessageSquare size={14} /></div>
-                                  }
-                                </div>
-                                <div>
-                                  <div className="text-sm font-black text-[#1e3a5f]">{r.name}</div>
-                                  <div className="text-[10px] font-bold text-[#84a9d1]">/{r.slug}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-4 text-xs font-bold text-[#1e3a5f]">{r.max_users} ط·آ¹ط·آ¶ط¸ث†</td>
-                            <td className="p-4">
-                              <span className={cn("text-[9px] font-black px-2 py-1 rounded-lg",
-                                r.is_private ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700")}>
-                                {r.is_private ? 'ط·آ®ط·آ§ط·آµط·آ©' : 'ط·آ¹ط·آ§ط¸â€¦ط·آ©'}
-                              </span>
-                            </td>
-                            <td className="p-4">
-                              <button onClick={() => handleToggleRoom(r)}
-                                className={cn("text-[9px] font-black px-3 py-1.5 rounded-lg transition-all flex items-center gap-1",
-                                  r.is_active ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-gray-100 text-gray-500 hover:bg-gray-200")}>
-                                {r.is_active ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
-                                {r.is_active ? 'ط¸â€ ط·آ´ط·آ·ط·آ©' : 'ط¸â€¦ط·آ¹ط·آ·ط¸â€‍ط·آ©'}
-                              </button>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center gap-2 justify-end">
-                                <button onClick={() => handleEditRoom(r)} className="p-2 text-[#84a9d1] hover:text-[#1e3a5f] transition-colors"><Edit size={16} /></button>
-                                <button onClick={() => handleDeleteRoom(r.id)} className="p-2 text-[#84a9d1] hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                        {rooms.length === 0 && (
-                          <tr><td colSpan={5} className="p-12 text-center text-[#84a9d1] font-bold text-sm">
-                            ط¸â€‍ط·آ§ ط·ع¾ط¸ث†ط·آ¬ط·آ¯ ط·ط›ط·آ±ط¸ظ¾ أ¢â‚¬â€‌ ط·آ§ط¸â€ ط¸â€ڑط·آ± ط·آ¹ط¸â€‍ط¸â€° "ط·آ¥ط¸â€ ط·آ´ط·آ§ط·طŒ ط·ط›ط·آ±ط¸ظ¾ط·آ©" ط¸â€‍ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط·آ£ط¸ث†ط¸â€‍ ط·ط›ط·آ±ط¸ظ¾ط·آ©
-                          </td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  )}
-
-                  {/* Gifts Tab */}
-                  {activeTab === 'gifts' && (
-                    <table className="w-full text-right">
-                      <thead className="bg-[#f0f4f8] border-b border-[#84a9d1]/10 sticky top-0">
-                        <tr>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط¸ظ¹ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·ع¾ط¸ئ’ط¸â€‍ط¸ظ¾ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€¦ط¸ئ’ط·آ§ط¸ظ¾ط·آ£ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€ ط¸ث†ط·آ¹</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ­ط·آ§ط¸â€‍ط·آ©</th>
-                          <th className="p-4 text-xs font-black text-[#1e3a5f] text-left">ط·آ¥ط·آ¬ط·آ±ط·آ§ط·طŒط·آ§ط·ع¾</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#84a9d1]/10">
-                        {gifts.filter(g => g.name_ar.toLowerCase().includes(searchQuery.toLowerCase())).map(g => (
-                          <tr key={g.id} className="hover:bg-[#f9fbfd] transition-colors">
-                            <td className="p-4">
-                              <div className="flex items-center gap-3">
-                                <span className="text-3xl">{g.image_url}</span>
-                                <div>
-                                  <div className="text-sm font-black text-[#1e3a5f]">{g.name_ar}</div>
-                                  <div className="text-[10px] text-[#84a9d1] font-bold">{g.name_en}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-4"><span className="text-sm font-black text-orange-600">{g.points_cost} ظ‹ع؛â€™عک</span></td>
-                            <td className="p-4"><span className="text-sm font-black text-green-600">+{g.points_award} ظ‹ع؛â€™عک</span></td>
-                            <td className="p-4"><span className="text-[10px] font-bold text-[#84a9d1] bg-[#f0f4f8] px-2 py-1 rounded">{g.effect_type}</span></td>
-                            <td className="p-4">
-                              <button onClick={() => handleToggleGift(g)}
-                                className={cn("text-[9px] font-black px-2 py-1 rounded-lg transition-all",
-                                  (g as any).is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500")}>
-                                {(g as any).is_active ? 'ط¸â€ ط·آ´ط·آ·ط·آ©' : 'ط¸â€¦ط·آ®ط¸ظ¾ط¸ظ¹ط·آ©'}
-                              </button>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center gap-2 justify-end">
-                                <button onClick={() => handleEditGift(g)} className="p-2 text-[#84a9d1] hover:text-[#1e3a5f]"><Edit size={16} /></button>
-                                <button onClick={() => handleDeleteGift(g.id)} className="p-2 text-[#84a9d1] hover:text-red-500"><Trash2 size={16} /></button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                        {gifts.length === 0 && (
-                          <tr><td colSpan={6} className="p-12 text-center text-[#84a9d1] font-bold text-sm">
-                            ط¸â€‍ط·آ§ ط·ع¾ط¸ث†ط·آ¬ط·آ¯ ط¸â€،ط·آ¯ط·آ§ط¸ظ¹ط·آ§ أ¢â‚¬â€‌ ط·آ§ط¸â€ ط¸â€ڑط·آ± ط·آ¹ط¸â€‍ط¸â€° "ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط¸â€،ط·آ¯ط¸ظ¹ط·آ©" ط¸â€‍ط¸â€‍ط·آ¨ط·آ¯ط·طŒ
-                          </td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  )}
-
-                  {/* Shop Management Tab */}
-                  {activeTab === 'shop' && (
-                    <div className="p-4 overflow-auto">
-                      <div className="bg-blue-50/50 rounded-2xl p-4 mb-4 border border-blue-100">
-                        <p className="text-[10px] font-bold text-blue-700 leading-relaxed">
-                          ظ‹ع؛â€؛طŒأ¯آ¸عˆ ط¸â€¦ط¸â€‍ط·آ§ط·آ­ط·آ¸ط·آ© ط·آ§ط¸â€‍ط¸â‚¬ Auto-Sync: ط¸ظ¹ط·ع¾ط¸â€¦ ط·آ¬ط¸â€‍ط·آ¨ ط¸â€،ط·آ°ط¸â€، ط·آ§ط¸â€‍ط·آ¹ط¸â€ ط·آ§ط·آµط·آ± ط¸â€¦ط¸â€  ط·آ§ط¸â€‍ط¸ئ’ط¸ث†ط·آ¯ ط·ع¾ط¸â€‍ط¸â€ڑط·آ§ط·آ¦ط¸ظ¹ط·آ§ط¸â€¹. ط·آ£ط¸ظ¹ ط·آ¹ط¸â€ ط·آµط·آ± ط·آ¬ط·آ¯ط¸ظ¹ط·آ¯ ط¸ظ¾ط¸ظ¹ ط·آ§ط¸â€‍ط¸ئ’ط¸ث†ط·آ¯ ط·آ³ط¸ظ¹ط·آ¸ط¸â€،ط·آ± ط¸â€،ط¸â€ ط·آ§ ط¸ظ¾ط¸ث†ط·آ±ط·آ§ط¸â€¹.
-                        </p>
+                    {activeTab === 'broadcast' && (
+                      <div className="max-w-2xl mx-auto py-20 text-center">
+                         <div className="w-24 h-24 bg-blue-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-blue-500 shadow-lg shadow-blue-500/10">
+                            <TrendingUp size={48} />
+                         </div>
+                         <h3 className="text-2xl font-black text-[#1e3a5f] mb-4">بث رسالة إدارية لجميع الغرف</h3>
+                         <p className="text-[#84a9d1] font-bold mb-10 leading-relaxed">اكتب رسالتك لجميع المستخدمين المتواجدين الآن. ستظهر الرسالة في الشات العام لكل غرفة بوضوح فائق.</p>
+                         <textarea 
+                            value={broadcastText}
+                            onChange={(e) => setBroadcastText(e.target.value)}
+                            placeholder="ما الذي تود قوله للجميع اليوم؟..." 
+                            className="w-full h-40 p-6 rounded-[2rem] bg-[#f9fbfd] border-2 border-slate-100 text-sm font-bold focus:outline-none focus:border-orange-500 shadow-inner transition-all mb-6"
+                         />
+                         <button 
+                           onClick={() => {
+                              if (!broadcastText.trim()) return;
+                              useChatStore.getState().addSystemMessageToAll(broadcastText);
+                              showToast('تم إرسال البث للجميع ✅');
+                              setBroadcastText('');
+                           }}
+                           className="w-full py-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-[2rem] font-black text-lg shadow-xl shadow-orange-500/20 active:scale-95 transition-all">
+                           إرسال الإعلان الآن ✨
+                         </button>
                       </div>
-                      <table className="w-full text-right">
-                        <thead className="bg-[#f0f4f8] border-b border-[#84a9d1]/10 sticky top-0">
-                          <tr>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ¹ط¸â€ ط·آµط·آ±</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€ ط¸ث†ط·آ¹</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·آ³ط·آ¹ط·آ±</th>
-                            <th className="p-4 text-xs font-black text-[#1e3a5f] text-left">ط·آ¥ط·آ¬ط·آ±ط·آ§ط·طŒط·آ§ط·ع¾</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#84a9d1]/10">
-                          {shopItems.filter(i => (i.name_ar || '').includes(searchQuery)).map(item => (
-                            <tr key={item.id} className="hover:bg-[#f9fbfd]">
-                              <td className="p-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                                    {item.image_url}
-                                  </div>
-                                  <div>
-                                    <div className="text-sm font-black text-[#1e3a5f]">{item.name_ar}</div>
-                                    <div className="text-[9px] text-[#84a9d1] font-mono">{item.preview_css}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <span className={cn("text-[9px] font-black px-2 py-1 rounded-lg",
-                                  item.category === 'frame' ? "bg-purple-100 text-purple-700" : "bg-cyan-100 text-cyan-700")}>
-                                  {item.category === 'frame' ? 'ط·آ¥ط·آ·ط·آ§ط·آ± ط·آ¨ط·آ±ط¸ث†ط¸ظ¾ط·آ§ط¸ظ¹ط¸â€‍' : 'ط·آ´ط·آ§ط·آ±ط·آ© ط¸â€¦ط¸â€¦ط¸ظ¹ط·آ²ط·آ©'}
-                                </span>
-                              </td>
-                              <td className="p-4 text-sm font-black text-orange-600">{item.points_cost}</td>
-                              <td className="p-4">
-                                <div className="flex items-center gap-2 justify-end">
-                                  <button onClick={() => handleEditShopItem(item)} className="p-2 text-[#84a9d1] hover:text-[#1e3a5f]"><Edit size={16} /></button>
-                                  <button onClick={() => handleDeleteShopItem(item.id)} className="p-2 text-[#84a9d1] hover:text-red-500"><Trash2 size={16} /></button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Professional Stats Tab */}
-                  {activeTab === 'stats' && (
-                    <div className="p-8 space-y-8">
-                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="bg-gradient-to-br from-[#1e3a5f] to-[#2a4e7c] p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-                           <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform"><Users size={120} /></div>
-                           <Users size={28} className="mb-4 text-orange-400" />
-                           <div className="text-4xl font-black mb-1">{stats.users.toLocaleString()}</div>
-                           <div className="text-xs font-bold opacity-70">ط·آ¥ط·آ¬ط¸â€¦ط·آ§ط¸â€‍ط¸ظ¹ ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ط¸ظ¹ط¸â€  ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·آ¬ط¸â€‍ط¸ظ¹ط¸â€ </div>
-                        </div>
-                        <div className="bg-gradient-to-br from-orange-400 to-red-500 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-                           <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform"><MessageSquare size={120} /></div>
-                           <MessageSquare size={28} className="mb-4 text-white" />
-                           <div className="text-4xl font-black mb-1">{stats.rooms.toLocaleString()}</div>
-                           <div className="text-xs font-bold opacity-70">ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ ط·آ§ط¸â€‍ط¸â€ ط·آ´ط·آ·ط·آ© ط·آ­ط·آ§ط¸â€‍ط¸ظ¹ط·آ§ط¸â€¹</div>
-                        </div>
-                        <div className="bg-gradient-to-br from-green-400 to-emerald-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-                           <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform"><Star size={120} /></div>
-                           <Star size={28} className="mb-4 text-yellow-300" />
-                           <div className="text-4xl font-black mb-1">{stats.totalPoints.toLocaleString()}</div>
-                           <div className="text-xs font-bold opacity-70">ط·آ¥ط·آ¬ط¸â€¦ط·آ§ط¸â€‍ط¸ظ¹ ط·آ±ط·آµط¸ظ¹ط·آ¯ ط·آ§ط¸â€‍ط¸â€ ط¸â€ڑط·آ§ط·آ· ط·آ§ط¸â€‍ط¸â€¦ط·ع¾ط·آ¯ط·آ§ط¸ث†ط¸â€‍</div>
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-                           <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform"><GiftIcon size={120} /></div>
-                           <GiftIcon size={28} className="mb-4 text-purple-200" />
-                           <div className="text-4xl font-black mb-1">{stats.gifts.toLocaleString()}</div>
-                           <div className="text-xs font-bold opacity-70">ط·آ£ط¸â€ ط¸ث†ط·آ§ط·آ¹ ط·آ§ط¸â€‍ط¸â€،ط·آ¯ط·آ§ط¸ظ¹ط·آ§ ط·آ§ط¸â€‍ط¸â€¦ط·ع¾ط¸ث†ط¸ظ¾ط·آ±ط·آ©</div>
-                        </div>
-                        <div className="bg-gradient-to-br from-cyan-400 to-blue-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-                           <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform"><Package size={120} /></div>
-                           <Package size={28} className="mb-4 text-cyan-100" />
-                           <div className="text-4xl font-black mb-1">{stats.shopItems.toLocaleString()}</div>
-                           <div className="text-xs font-bold opacity-70">ط¸â€¦ط¸â€ ط·ع¾ط·آ¬ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط¸â€¦ط·ع¾ط·آ¬ط·آ± (ط·آ¥ط·آ·ط·آ§ط·آ±ط·آ§ط·ع¾ ط¸ث†ط·آ´ط·آ§ط·آ±ط·آ§ط·ع¾)</div>
-                        </div>
+                    {activeTab === 'settings' && siteSettingsForm && (
+                       <div className="max-w-3xl mx-auto bg-white rounded-[3rem] p-12 border border-slate-100 shadow-xl shadow-slate-200/50">
+                          <h3 className="text-2xl font-black text-[#1e3a5f] mb-10 pb-6 border-b border-slate-100">إعدادات المنصة الأساسية</h3>
+                          <div className="space-y-8">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-2">
+                                   <label className="text-xs font-black text-[#1e3a5f] px-2">اسم الموقع</label>
+                                   <input type="text" value={siteSettingsForm.site_name} onChange={e => setSiteSettingsForm({...siteSettingsForm, site_name: e.target.value})}
+                                      className="w-full bg-[#f8fbff] border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all" />
+                                </div>
+                                <div className="space-y-2">
+                                   <label className="text-xs font-black text-[#1e3a5f] px-2">اسم العملة (مثال: نقاط)</label>
+                                   <input type="text" value={siteSettingsForm.points_name} onChange={e => setSiteSettingsForm({...siteSettingsForm, points_name: e.target.value})}
+                                      className="w-full bg-[#f8fbff] border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all" />
+                                </div>
+                             </div>
+                             <div className="space-y-2">
+                                <label className="text-xs font-black text-[#1e3a5f] px-2">نقاط الترحيب بالأعضاء الجدد</label>
+                                <input type="number" value={siteSettingsForm.default_points} onChange={e => setSiteSettingsForm({...siteSettingsForm, default_points: parseInt(e.target.value)})}
+                                   className="w-full bg-[#f8fbff] border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-orange-500 focus:bg-white transition-all" />
+                             </div>
+                             <button onClick={handleSaveSettings} disabled={saving}
+                                className="w-full mt-6 py-5 bg-[#1e3a5f] text-white rounded-[2rem] font-black text-lg hover:bg-slate-900 transition-all shadow-xl shadow-slate-900/10 active:scale-95">
+                                {saving ? 'جاري الحفظ...' : 'حفظ التغييرات النهائية'}
+                             </button>
+                          </div>
                        </div>
-                    </div>
-                  )}
-
-                  {/* Logs Tab */}
-                  {activeTab === 'logs' && (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-right border-collapse">
-                        <thead className="bg-[#f0f4f8] border-b border-[#84a9d1]/20">
-                          <tr>
-                            <th className="p-3 text-[11px] font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸ث†ط¸â€ڑط·ع¾</th>
-                            <th className="p-3 text-[11px] font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦</th>
-                            <th className="p-3 text-[11px] font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط¸ظ¾ط·آ¹ط¸â€‍</th>
-                            <th className="p-3 text-[11px] font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ط·آ©</th>
-                            <th className="p-3 text-[11px] font-black text-[#1e3a5f]">ط·آ§ط¸â€‍ط·ع¾ط¸ظ¾ط·آ§ط·آµط¸ظ¹ط¸â€‍</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#84a9d1]/10">
-                          {roomLogs.map((log) => (
-                            <tr key={log.id} className="hover:bg-blue-50/30 transition-colors">
-                              <td className="p-3 text-[10px] font-bold text-[#84a9d1]">
-                                {new Date(log.created_at).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
-                              </td>
-                              <td className="p-3">
-                                <div className="text-[11px] font-black text-[#1e3a5f]">{log.profiles?.display_name || 'ط·ط›ط¸ظ¹ط·آ± ط¸â€¦ط·آ¹ط·آ±ط¸ث†ط¸ظ¾'}</div>
-                                <div className="text-[9px] text-[#84a9d1]">@{log.profiles?.username}</div>
-                              </td>
-                              <td className="p-3">
-                                <span className={cn("text-[9px] font-black px-2 py-0.5 rounded", 
-                                  log.action === 'kick' || log.action === 'ban' ? "bg-red-100 text-red-600" : 
-                                  log.action === 'join' ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"
-                                )}>
-                                  {log.action === 'join' ? 'ط·آ¯ط·آ®ط¸ث†ط¸â€‍' : 
-                                   log.action === 'leave' ? 'ط·آ®ط·آ±ط¸ث†ط·آ¬' : 
-                                   log.action === 'kick' ? 'ط·آ·ط·آ±ط·آ¯' : 
-                                   log.action === 'ban' ? 'ط·آ­ط·آ¸ط·آ±' : log.action}
-                                </span>
-                              </td>
-                              <td className="p-3 text-[11px] font-bold text-[#1e3a5f]">{log.rooms?.name || '---'}</td>
-                              <td className="p-3 text-[9px] text-[#84a9d1] font-medium max-w-[150px] truncate">
-                                {JSON.stringify(log.metadata)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* Broadcast Tab */}
-                  {activeTab === 'broadcast' && (
-                    <div className="p-12 flex flex-col items-center justify-center text-center max-w-2xl mx-auto">
-                      <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                        <TrendingUp size={40} />
-                      </div>
-                      <h3 className="text-2xl font-black text-[#1e3a5f] mb-2 font-sans">ط·آ¨ط·آ« ط·آ¥ط·آ¹ط¸â€‍ط·آ§ط¸â€  ط·آ¹ط·آ§ط¸â€¦ ط¸â€‍ط¸â€‍ط·آ¥ط·آ¯ط·آ§ط·آ±ط·آ©</h3>
-                      <p className="text-sm font-bold text-[#84a9d1] mb-8">ط·آ³ط¸ظ¹ط·آ¸ط¸â€،ط·آ± ط¸â€،ط·آ°ط·آ§ ط·آ§ط¸â€‍ط·آ¥ط·آ¹ط¸â€‍ط·آ§ط¸â€  ط¸ظ¾ط¸ث†ط·آ±ط·آ§ط¸â€¹ ط¸ظ¾ط¸ظ¹ ط·آ¬ط¸â€¦ط¸ظ¹ط·آ¹ ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ ط¸ث†ط¸ظ¾ط¸ظ¹ ط¸ث†ط·آ§ط·آ¬ط¸â€،ط·آ© ط¸ئ’ط¸â€‍ ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ ط¸â€ ط·آ´ط·آ·.</p>
-                      <textarea
-                        value={broadcastText}
-                        onChange={e => setBroadcastText(e.target.value)}
-                        className="w-full bg-[#f0f4f8] border-2 border-[#84a9d1]/20 rounded-3xl p-6 text-sm font-bold text-[#1e3a5f] focus:outline-none focus:border-orange-500 mb-6 placeholder:text-[#84a9d1]"
-                        rows={4}
-                        placeholder="ط·آ§ط¸ئ’ط·ع¾ط·آ¨ ط¸â€،ط¸â€ ط·آ§ ط·آ§ط¸â€‍ط·آ¥ط·آ¹ط¸â€‍ط·آ§ط¸â€  ط·آ§ط¸â€‍ط·آ¥ط·آ¯ط·آ§ط·آ±ط¸ظ¹ ط·آ§ط¸â€‍ط¸â€،ط·آ§ط¸â€¦..."
-                        dir="rtl"
-                      />
-                      <button
-                        onClick={async () => {
-                          if (!broadcastText.trim()) return;
-                          try {
-                            await supabase.channel('global-notices').send({
-                              type: 'broadcast',
-                              event: 'site-notice',
-                              payload: { text: broadcastText }
-                            });
-                            showToast('ط·ع¾ط¸â€¦ ط·آ¥ط·آ±ط·آ³ط·آ§ط¸â€‍ ط·آ§ط¸â€‍ط·آ¥ط·آ¹ط¸â€‍ط·آ§ط¸â€  ط¸â€‍ط·آ¬ط¸â€¦ط¸ظ¹ط·آ¹ ط·آ§ط¸â€‍ط·ط›ط·آ±ط¸ظ¾ أ¢إ“â€œ');
-                            setBroadcastText('');
-                          } catch (err: any) {
-                            showToast('ط¸ظ¾ط·آ´ط¸â€‍ ط·آ§ط¸â€‍ط·آ¥ط·آ±ط·آ³ط·آ§ط¸â€‍: ' + err.message, 'error');
-                          }
-                          setSaving(false);
-                        }}
-                        disabled={saving || !broadcastText.trim()}
-                        className="w-full py-4 bg-[#1e3a5f] hover:bg-[#2a4e7c] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95 disabled:opacity-50"
-                      >
-                        {saving ? 'ط·آ¬ط·آ§ط·آ±ط¸ظ¹ ط·آ§ط¸â€‍ط·آ¨ط·آ«...' : 'ط·آ¨ط·آ« ط·آ§ط¸â€‍ط·آ¥ط·آ¹ط¸â€‍ط·آ§ط¸â€  ط·آ§ط¸â€‍ط·آ¢ط¸â€ '}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Settings Tab */}
-                  {activeTab === 'settings' && siteSettingsForm && (
-                    <div className="p-8 max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
-                      <div className="flex items-center gap-4 border-b border-[#84a9d1]/10 pb-6 mb-8 text-[#1e3a5f]">
-                        <SettingsIcon size={32} className="text-orange-500" />
-                        <div>
-                          <h3 className="text-xl font-black">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ…ظˆظ‚ط¹ ظˆط§ظ„ظ‡ظˆظٹط© âڑ™ï¸ڈ</h3>
-                          <p className="text-xs font-bold text-[#84a9d1]">ط§ظ„طھط­ظƒظ… ظپظٹ ط§ط³ظ… ط§ظ„ظ…ظˆظ‚ط¹ ظˆط´ط¹ط§ط±ظ‡ ظˆط­ط§ظ„طھظ‡</p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-xs font-black text-[#1e3a5f] block mb-2">ط§ط³ظ… ط§ظ„ظ…ظˆظ‚ط¹ (ظٹط¸ظ‡ط± ظپظٹ ظƒظ„ ظ…ظƒط§ظ†) ًںڈ°</label>
-                            <input value={siteSettingsForm.site_name} onChange={e => setSiteSettingsForm({...siteSettingsForm, site_name: e.target.value})}
-                              className="w-full border-2 border-[#84a9d1]/20 rounded-2xl px-4 py-3 text-sm font-bold focus:border-orange-500 bg-[#f8fafc]/50" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-black text-[#1e3a5f] block mb-2">ط±ط§ط¨ط· ط§ظ„ط´ط¹ط§ط± ط£ظˆ ط§ظ„ط¥ظٹظ…ظˆط¬ظٹ ط§ظ„ط£ط³ط§ط³ظٹ ًں–¼ï¸ڈ</label>
-                            <input value={siteSettingsForm.logo_url} onChange={e => setSiteSettingsForm({...siteSettingsForm, logo_url: e.target.value})}
-                              className="w-full border-2 border-[#84a9d1]/20 rounded-2xl px-4 py-3 text-sm font-bold focus:border-orange-500 bg-[#f8fafc]/50" placeholder="https://..." />
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-xs font-black text-[#1e3a5f] block mb-2">ط±ط³ط§ظ„ط© ط§ظ„طھط±ط­ظٹط¨ ظˆط§ظ„ظ†ظٹظˆط² ط¨ط§ط± ًں’¬</label>
-                            <textarea value={siteSettingsForm.welcome_announcement} onChange={e => setSiteSettingsForm({...siteSettingsForm, welcome_announcement: e.target.value})}
-                              className="w-full border-2 border-[#84a9d1]/20 rounded-2xl px-4 py-3 text-sm font-bold focus:border-orange-500 bg-[#f8fafc]/50 resize-none" rows={4} />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-orange-50 border border-orange-100 rounded-[2rem] p-6 flex items-center justify-between shadow-sm">
-                        <div className="flex items-center gap-4">
-                          <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", siteSettingsForm.maintenance_mode ? "bg-orange-500 text-white" : "bg-green-100 text-green-600")}>
-                             {siteSettingsForm.maintenance_mode ? <AlertCircle size={24} /> : <Check size={24} />}
-                          </div>
-                          <div>
-                            <div className="text-sm font-black text-[#1e3a5f]">ط¸ث†ط·آ¶ط·آ¹ ط·آ§ط¸â€‍ط·آµط¸ظ¹ط·آ§ط¸â€ ط·آ© (Maintenance Mode)</div>
-                            <div className="text-[10px] font-bold text-[#84a9d1]">ط·آ¹ط¸â€ ط·آ¯ ط·آ§ط¸â€‍ط·ع¾ط¸ظ¾ط·آ¹ط¸ظ¹ط¸â€‍ط·إ’ ط·آ³ط¸ظ¹ط·آ¸ط¸â€،ط·آ± ط·ع¾ط¸â€ ط·آ¨ط¸ظ¹ط¸â€، ط¸â€‍ط·آ¬ط¸â€¦ط¸ظ¹ط·آ¹ ط·آ§ط¸â€‍ط¸â€¦ط·آ³ط·ع¾ط·آ®ط·آ¯ط¸â€¦ط¸ظ¹ط¸â€  ط·آ¨ط·آµط¸ظ¹ط·آ§ط¸â€ ط·آ© ط·آ§ط¸â€‍ط¸â€¦ط¸ث†ط¸â€ڑط·آ¹ ط·آ§ط¸â€‍ط·آ¬ط·آ§ط·آ±ط¸ظ¹ط·آ©</div>
-                          </div>
-                        </div>
-                        <button onClick={() => setSiteSettingsForm({...siteSettingsForm, maintenance_mode: !siteSettingsForm.maintenance_mode})}
-                          className={cn("px-6 py-2 rounded-xl font-black text-xs transition-all", siteSettingsForm.maintenance_mode ? "bg-orange-500 text-white shadow-lg" : "bg-white border border-[#84a9d1]/30 text-[#84a9d1]")}>
-                          {siteSettingsForm.maintenance_mode ? 'ط·آ¥ط¸â€‍ط·ط›ط·آ§ط·طŒ ط¸ث†ط·آ¶ط·آ¹ ط·آ§ط¸â€‍ط·آµط¸ظ¹ط·آ§ط¸â€ ط·آ©' : 'ط·ع¾ط¸ظ¾ط·آ¹ط¸ظ¹ط¸â€‍ ط¸ث†ط·آ¶ط·آ¹ ط·آ§ط¸â€‍ط·آµط¸ظ¹ط·آ§ط¸â€ ط·آ©'}
-                        </button>
-                      </div>
-
-                      <div className="pt-6 border-t border-[#84a9d1]/10">
-                        <button onClick={handleSaveSettings} disabled={saving}
-                          className="w-full py-4 bg-[#1e3a5f] hover:bg-[#2a4e7c] text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95 disabled:opacity-50"
-                        >
-                          {saving ? 'ط·آ¬ط·آ§ط·آ±ط¸ظ¹ ط·آ§ط¸â€‍ط·آ­ط¸ظ¾ط·آ¸...' : 'ط·آ­ط¸ظ¾ط·آ¸ ط·آ¬ط¸â€¦ط¸ظ¹ط·آ¹ ط·آ§ط¸â€‍ط·آ¥ط·آ¹ط·آ¯ط·آ§ط·آ¯ط·آ§ط·ع¾ ط·آ§ط¸â€‍ط·آ¹ط·آ§ط¸â€¦ط·آ©'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               )}
             </div>
           </div>
-        </div>
-      </motion.div>
-
-      {/* Modals */}
-      {showCreateRoom && (
-        <RoomFormModal 
-          editingRoom={editingRoom}
-          setShowCreateRoom={setShowCreateRoom}
-          setEditingRoom={setEditingRoom}
-          setRoomForm={setRoomForm}
-          roomForm={roomForm}
-          users={users}
-          saving={saving}
-          handleSaveRoom={handleSaveRoom}
-        />
-      )}
-      {showCreateShopItem && (
-        <ShopItemFormModal 
-          editingShopItem={editingShopItem}
-          setShowCreateShopItem={setShowCreateShopItem}
-          setEditingShopItem={setEditingShopItem}
-          setShopItemForm={setShopItemForm}
-          shopItemForm={shopItemForm}
-          saving={saving}
-          handleSaveShopItem={handleSaveShopItem}
-        />
-      )}
-      {showCreateGift && (
-        <GiftFormModal 
-          editingGift={editingGift}
-          setShowCreateGift={setShowCreateGift}
-          setEditingGift={setEditingGift}
-          setGiftForm={setGiftForm}
-          giftForm={giftForm}
-          saving={saving}
-          handleSaveGift={handleSaveGift}
-        />
-      )}
-    </div>
-  );
-}
-
-// أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬ MODAL COMPONENTS أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬أ¢â€‌â‚¬
-
-function ShopItemFormModal({ editingShopItem, setShowCreateShopItem, setEditingShopItem, setShopItemForm, shopItemForm, saving, handleSaveShopItem }: any) {
-  return (
-    <div className="fixed inset-0 z-[300] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-[#84a9d1]">
-        <div className="bg-[#1e3a5f] p-4 text-white flex justify-between items-center">
-          <h3 className="font-black">{editingShopItem ? 'ط·ع¾ط·آ¹ط·آ¯ط¸ظ¹ط¸â€‍ ط·آ¹ط¸â€ ط·آµط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·ع¾ط·آ¬ط·آ±' : 'ط·آ¥ط·آ¶ط·آ§ط¸ظ¾ط·آ© ط·آ¹ط¸â€ ط·آµط·آ± ط·آ¬ط·آ¯ط¸ظ¹ط·آ¯'}</h3>
-          <button onClick={() => { setShowCreateShopItem(false); setEditingShopItem(null); }}><X size={20}/></button>
-        </div>
-        <div className="p-6 space-y-4 text-right">
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط·آ§ط¸â€‍ط·آ§ط·آ³ط¸â€¦ ط·آ¨ط·آ§ط¸â€‍ط·آ¹ط·آ±ط·آ¨ط¸ظ¹ط·آ©</label>
-            <input value={shopItemForm.name_ar} onChange={e => setShopItemForm({...shopItemForm, name_ar: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط·آ§ط¸â€‍ط¸â€ ط¸ث†ط·آ¹</label>
-            <select value={shopItemForm.category} onChange={e => setShopItemForm({...shopItemForm, category: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold">
-              <option value="frame">ط·آ¥ط·آ·ط·آ§ط·آ± ط·آ¨ط·آ±ط¸ث†ط¸ظ¾ط·آ§ط¸ظ¹ط¸â€‍</option>
-              <option value="badge">ط·آ´ط·آ§ط·آ±ط·آ© ط¸â€¦ط¸â€¦ط¸ظ¹ط·آ²ط·آ©</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط·آ§ط¸â€‍ط·آ¥ط¸ظ¹ط¸â€¦ط¸ث†ط·آ¬ط¸ظ¹ ط·آ£ط¸ث† ط·آ±ط·آ§ط·آ¨ط·آ· ط·آ§ط¸â€‍ط·آµط¸ث†ط·آ±ط·آ©</label>
-            <input value={shopItemForm.image_url} onChange={e => setShopItemForm({...shopItemForm, image_url: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط·آ³ط·آ¹ط·آ± ط·آ§ط¸â€‍ط¸â€ ط¸â€ڑط·آ§ط·آ· ظ‹ع؛â€™عک</label>
-            <input type="number" value={shopItemForm.points_cost} onChange={e => setShopItemForm({...shopItemForm, points_cost: parseInt(e.target.value)})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط·ع¾ط¸â€ ط·آ³ط¸ظ¹ط¸â€ڑ ط·آ§ط¸â€‍ط¸â‚¬ CSS (ط·آ§ط·آ®ط·ع¾ط¸ظ¹ط·آ§ط·آ±ط¸ظ¹)</label>
-            <input value={shopItemForm.preview_css} onChange={e => setShopItemForm({...shopItemForm, preview_css: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold font-mono" placeholder="border: 2px solid gold; ..." />
-          </div>
-          <button onClick={handleSaveShopItem} disabled={saving}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm shadow-lg transition-all active:scale-95 disabled:opacity-50">
-            {saving ? 'ط·آ¬ط·آ§ط·آ±ط¸ظ¹ ط·آ§ط¸â€‍ط·آ­ط¸ظ¾ط·آ¸...' : 'ط·آ­ط¸ظ¾ط·آ¸ ط·آ§ط¸â€‍ط·آ¹ط¸â€ ط·آµط·آ±'}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function GiftFormModal({ editingGift, setShowCreateGift, setEditingGift, setGiftForm, giftForm, saving, handleSaveGift }: any) {
-  return (
-    <div className="fixed inset-0 z-[350] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" dir="rtl">
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-orange-200">
-        <div className="bg-orange-500 p-4 text-white flex justify-between items-center">
-          <h3 className="font-black">{editingGift ? 'طھط¹ط¯ظٹظ„ ط§ظ„ظ‡ط¯ظٹط©' : 'ط¥ط¶ط§ظپط© ظ‡ط¯ظٹط© ط¬ط¯ظٹط¯ط©'}</h3>
-          <button onClick={() => { setShowCreateGift(false); setEditingGift(null); }}><X size={20}/></button>
-        </div>
-        <div className="p-6 space-y-4 text-right">
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط§ط³ظ… ط§ظ„ظ‡ط¯ظٹط© (ط¨ط§ظ„ط¹ط±ط¨ظٹط©)</label>
-            <input value={giftForm.name_ar} onChange={e => setGiftForm({...giftForm, name_ar: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط§ظ„ط¥ظٹظ…ظˆط¬ظٹ ط£ظˆ ط§ظ„ط±ط§ط¨ط·</label>
-            <input value={giftForm.image_url} onChange={e => setGiftForm({...giftForm, image_url: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط§ظ„طھظƒظ„ظپط© (ًں’ژ)</label>
-            <input type="number" value={giftForm.points_cost} onChange={e => setGiftForm({...giftForm, points_cost: parseInt(e.target.value)})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-           <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ظ†ظˆط¹ ط§ظ„طھط£ط«ظٹط±</label>
-            <select value={giftForm.effect_type} onChange={e => setGiftForm({...giftForm, effect_type: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold">
-              <option value="overlay">طھط£ط«ظٹط± ط´ط§ط´ط©</option>
-              <option value="global_announce">ط¥ط¹ظ„ط§ظ† ط¹ط§ظ„ظ…ظٹ</option>
-              <option value="none">ط¨ط¯ظˆظ† طھط£ط«ظٹط±</option>
-            </select>
-          </div>
-          <button onClick={handleSaveGift} disabled={saving}
-            className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-black text-sm shadow-lg transition-all active:scale-95 disabled:opacity-50">
-            {saving ? 'ط¬ط§ط±ظٹ ط§ظ„ط­ظپط¸...' : 'ط­ظپط¸ ط§ظ„ظ‡ط¯ظٹط©'}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function RoomFormModal({ editingRoom, setShowCreateRoom, setEditingRoom, setRoomForm, roomForm, saving, handleSaveRoom }: any) {
-  return (
-    <div className="fixed inset-0 z-[350] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" dir="rtl">
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-slate-200">
-        <div className="bg-[#1e3a5f] p-4 text-white flex justify-between items-center">
-          <h3 className="font-black">{editingRoom ? 'طھط¹ط¯ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط؛ط±ظپط©' : 'ط¥ظ†ط´ط§ط، ط؛ط±ظپط© ط¬ط¯ظٹط¯ط©'}</h3>
-          <button onClick={() => { setShowCreateRoom(false); setEditingRoom(null); }}><X size={20}/></button>
-        </div>
-        <div className="p-6 space-y-4 text-right">
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط§ط³ظ… ط§ظ„ط؛ط±ظپط©</label>
-            <input value={roomForm.name} onChange={e => setRoomForm({...roomForm, name: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ظˆطµظپ ط§ظ„ط؛ط±ظپط©</label>
-            <input value={roomForm.description} onChange={e => setRoomForm({...roomForm, description: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <div>
-            <label className="text-xs font-black text-[#1e3a5f] block mb-1">ط§ظ„ط¥ظٹظ…ظˆط¬ظٹ</label>
-            <input value={roomForm.icon} onChange={e => setRoomForm({...roomForm, icon: e.target.value})}
-              className="w-full border-2 border-[#84a9d1]/20 rounded-xl px-3 py-2 text-sm font-bold" />
-          </div>
-          <button onClick={handleSaveRoom} disabled={saving}
-            className="w-full py-3 bg-[#1e3a5f] hover:bg-[#2a4e7c] text-white rounded-xl font-black text-sm shadow-lg transition-all active:scale-95 disabled:opacity-50">
-            {saving ? 'ط¬ط§ط±ظٹ ط§ظ„ط­ظپط¸...' : 'ط­ظپط¸ ط§ظ„ط¨ظٹط§ظ†ط§طھ'}
-          </button>
         </div>
       </motion.div>
     </div>

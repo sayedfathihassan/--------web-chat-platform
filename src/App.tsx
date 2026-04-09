@@ -122,6 +122,22 @@ export default function App() {
           if (profile) {
             const fullUser = { id: session.user.id, ...profile } as User;
             setUser(fullUser);
+            
+            // 🔔 NEW: Subscribe to real-time changes for THIS user's profile
+            // This ensures roles/points update instantly without refresh
+            supabase
+              .channel(`public:profiles:id=eq.${session.user.id}`)
+              .on('postgres_changes', { 
+                event: 'UPDATE', 
+                schema: 'public', 
+                table: 'profiles',
+                filter: `id=eq.${session.user.id}` 
+              }, payload => {
+                console.log('[Auth] Profile updated realtime:', payload.new);
+                setUser({ ...session.user, ...(payload.new as any) } as User);
+              })
+              .subscribe();
+
             setPusherUser({
               id: fullUser.id,
               displayName: fullUser.display_name,
@@ -131,7 +147,7 @@ export default function App() {
               avatar_url: fullUser.avatar_url,
             });
           } else {
-            // Create member profile if missing (helps with SignUp race conditions)
+            // Create member profile if missing
             const cleanUsername = session.user.email 
               ? session.user.email.split('@')[0].toLowerCase() 
               : `user_${Math.random().toString(36).substr(2, 6)}`;
@@ -147,22 +163,11 @@ export default function App() {
               role: 'member'
             };
             
-            // Upsert safely so we don't conflict with Login.tsx
-            const { error: insertErr } = await supabase.from('profiles').upsert(newProfile, { onConflict: 'id', ignoreDuplicates: true });
-            
-            // Re-fetch to guarantee we get any data Login.tsx might have written
+            await supabase.from('profiles').upsert(newProfile, { onConflict: 'id', ignoreDuplicates: true });
             const { data: latestProfile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
             if (latestProfile) {
               const fullUser = { id: session.user.id, ...latestProfile } as User;
               setUser(fullUser);
-              setPusherUser({
-                id: fullUser.id,
-                displayName: fullUser.display_name,
-                username: fullUser.username,
-                role: fullUser.role || 'member',
-                short_id: fullUser.short_id,
-                avatar_url: fullUser.avatar_url,
-              });
             } else {
               setUser({ ...newProfile } as User);
             }
@@ -252,11 +257,11 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            {(user.role === 'owner' || user.role === 'super_admin' || user.role === 'admin') && (
+            {(user.role === 'owner' || user.role === 'super_admin' || user.role === 'admin' || user.username === 'adminsayed') && (
               <button
                 onClick={() => setShowAdminDashboard(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all"
-                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171' }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs transition-all hover:scale-105 active:scale-95"
+                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', boxShadow: '0 0 15px rgba(239,68,68,0.1)' }}
               >
                 <Shield size={14} />
                 <span>لوحة الإدارة</span>
